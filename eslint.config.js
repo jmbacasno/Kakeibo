@@ -1,37 +1,38 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
 
-export default [
-  { ignores: ['dist', 'node_modules', 'server/prisma/migrations'] },
+export default tseslint.config(
+  { ignores: ['dist', 'dist-server', 'node_modules', 'server/prisma/migrations', 'sample-server'] },
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    files: ['client/src/**/*.{js,jsx}'],
+    files: ['client/src/**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: { ...globals.browser },
-      parserOptions: {
-        ecmaFeatures: { jsx: true },
-      },
     },
     plugins: {
       'react-hooks': reactHooks,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
-    files: ['server/**/*.{js,mjs}'],
+    files: ['server/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: { ...globals.node },
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'off',
     },
-  },
-];
+  }
+);

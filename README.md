@@ -4,36 +4,37 @@ A full-stack personal finance journal inspired by the Japanese **Kakeibo (家計
 
 ## Technology Stack
 
-- **Frontend**: React.js (JavaScript), Vite, Redux Toolkit, React Redux, React Router DOM, Axios, Tailwind CSS, Lucide React
-- **Backend**: Node.js, Express.js, Prisma ORM, SQLite, JWT authentication, bcryptjs, Zod validation
+- **Frontend**: React.js (TypeScript), Vite, Redux Toolkit, React Redux, React Router DOM, Axios, Tailwind CSS, Lucide React
+- **Backend**: Node.js (TypeScript), Express.js, Prisma ORM, SQLite, JWT authentication, bcryptjs, Zod validation, Pino logging, Swagger / OpenAPI
 
 ## Project Structure
 
 ```text
 ├── client/
 │   └── src/
-│       ├── app/          # Redux store
+│       ├── app/          # Redux store & typed hooks
 │       ├── components/   # Reusable UI components
 │       ├── features/     # Redux slices & feature modules
 │       ├── layouts/      # Workspace shell & navigation
 │       ├── pages/        # Route pages
 │       ├── routes/       # ProtectedRoute wrapper
 │       ├── services/     # Axios API client
+│       ├── types/        # Shared frontend domain TypeScript interfaces
 │       └── utils/        # Currency, date, & Kakeibo helpers
 ├── server/
+│   ├── domain/           # Entities, repository interfaces, domain services & errors
+│   ├── application/      # DTOs, Zod schemas, application services & UoW orchestration
+│   ├── infrastructure/   # Config, Pino logger, Prisma client/mappers/repositories, security
+│   ├── presentation/     # Express middlewares, Swagger docs, & /api/v1 routers
 │   ├── prisma/
 │   │   ├── schema.prisma # Database models & constraints
 │   │   ├── migrations/   # Prisma SQLite migrations
-│   │   └── seed.js       # Default categories seed script
-│   └── src/
-│       ├── config/       # Env & PrismaClient singleton
-│       ├── middleware/   # JWT auth, Zod validation, error handling
-│       ├── modules/      # Auth, Categories, Plans, Budgets, Transactions, Notes, Reflections, Dashboard
-│       ├── utils/        # Decimal math, errors, default categories
-│       ├── app.js        # Express /api/v1 application
-│       └── server.js     # HTTP server + Vite middleware / static serving
+│   │   └── seed.ts       # Default account & categories seed script
+│   ├── index.ts          # Express /api/v1 + Vite middleware / static server entrypoint
+│   └── tsconfig.json     # NodeNext TypeScript configuration for the server
 ├── .env.example
 ├── index.html
+├── tsconfig.json
 └── package.json
 ```
 

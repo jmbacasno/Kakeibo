@@ -19,4 +19,4 @@ RUN mkdir -p /app/data
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=server/prisma/schema.prisma && node server/prisma/seed.js && node server/src/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=server/prisma/schema.prisma && npx tsx server/prisma/seed.ts && npx tsx server/index.ts"]

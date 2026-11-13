@@ -14,15 +14,16 @@
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
-    "allowJs": true,
     "jsx": "react-jsx",
+    "strict": true,
     "paths": {
       "@/*": [
-        "./*"
+        "./client/src/*"
       ]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": ["dist"]
+  "include": ["client/src/**/*", "vite.config.ts"],
+  "exclude": ["dist", "node_modules", "sample-server"]
 }

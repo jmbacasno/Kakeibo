@@ -1,0 +1,22 @@
+import { Category as PrismaCategory } from "@prisma/client";
+import { Category, CategoryType, CategoryUsageCounts } from "../../../domain/entities/category/index.js";
+
+export type PrismaCategoryWithCounts = PrismaCategory & {
+  _count?: CategoryUsageCounts;
+};
+
+export class CategoryModel {
+  static toEntity(raw: PrismaCategoryWithCounts): Category {
+    return new Category({
+      id: raw.id,
+      userId: raw.userId,
+      name: raw.name,
+      type: raw.type as CategoryType,
+      isDefault: raw.isDefault,
+      isActive: raw.isActive,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt,
+      _count: raw._count,
+    });
+  }
+}

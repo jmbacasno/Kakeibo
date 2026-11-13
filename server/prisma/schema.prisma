@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  categories   Category[]
+  monthlyPlans MonthlyPlan[]
+}
+
+model Category {
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  name            String
+  type            String           // "INCOME" | "EXPENSE"
+  isDefault       Boolean          @default(false)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryBudgets CategoryBudget[]
+  transactions    Transaction[]
+
+  @@unique([userId, name, type])
+  @@index([userId, type])
+  @@index([userId, isActive])
+}
+
+model MonthlyPlan {
+  id            Int                @id @default(autoincrement())
+  userId        Int
+  month         Int                // 1 - 12
+  year          Int
+  plannedIncome Decimal            @default(0)
+  savingsGoal   Decimal            @default(0)
+  status        String             @default("ACTIVE") // "DRAFT" | "ACTIVE" | "COMPLETED"
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgets       CategoryBudget[]
+  transactions  Transaction[]
+  notes         Note[]
+  reflection    MonthlyReflection?
+
+  @@unique([userId, month, year])
+  @@index([userId, year, month])
+}
+
+model CategoryBudget {
+  id              Int         @id @default(autoincrement())
+  monthlyPlanId   Int
+  categoryId      Int
+  allocatedAmount Decimal     @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  monthlyPlan     MonthlyPlan @relation(fields: [monthlyPlanId], references: [id], onDelete: Cascade)
+  category        Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@unique([monthlyPlanId, categoryId])
+  @@index([monthlyPlanId])
+  @@index([categoryId])
+}
+
+model Transaction {
+  id              Int         @id @default(autoincrement())
+  monthlyPlanId   Int
+  categoryId      Int
+  amount          Decimal
+  description     String
+  transactionDate DateTime
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  monthlyPlan     MonthlyPlan @relation(fields: [monthlyPlanId], references: [id], onDelete: Cascade)
+  category        Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([monthlyPlanId, transactionDate])
+  @@index([categoryId])
+}
+
+model Note {
+  id            Int         @id @default(autoincrement())
+  monthlyPlanId Int
+  title         String?
+  content       String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  monthlyPlan   MonthlyPlan @relation(fields: [monthlyPlanId], references: [id], onDelete: Cascade)
+
+  @@index([monthlyPlanId, createdAt])
+}
+
+model MonthlyReflection {
+  id            Int         @id @default(autoincrement())
+  monthlyPlanId Int         @unique
+  content       String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  monthlyPlan   MonthlyPlan @relation(fields: [monthlyPlanId], references: [id], onDelete: Cascade)
+}

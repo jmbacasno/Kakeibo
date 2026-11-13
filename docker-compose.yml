@@ -1,0 +1,17 @@
+services:
+  kakeibo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kakeibo-app
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: "file:/app/data/dev.db"
+      JWT_SECRET: "${JWT_SECRET:-kakeibo-local-docker-secret-change-me}"
+      JWT_EXPIRES_IN: "7d"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

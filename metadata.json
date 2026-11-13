@@ -1,0 +1,6 @@
+{
+  "name": "Kakeibo — Mindful Personal Finance",
+  "description": "A Japanese Kakeibo-inspired personal finance journal for monthly planning, expense tracking, budgeting, notes, and mindful spending reflections.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

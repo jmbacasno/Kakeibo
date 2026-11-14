@@ -1,35 +1,27 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import api, { getErrorMessage } from '../../services/api';
-import { ApiSuccessResponse, MonthlyPlan, PlanStatus } from '../../types/models';
+import { getErrorMessage } from '../../services/api';
+import { MonthlyPlan, PlanStatus } from '../../types/models';
 import { forceLogout, logoutUser } from '../auth/authSlice';
+import {
+  CreatePlanPayload,
+  FetchCurrentPlanParams,
+  planService,
+  PlanBudgetInput,
+  UpdatePlanPayload,
+} from './planService';
 
-export interface PlanBudgetInput {
-  categoryId: number;
-  allocatedAmount: number;
-}
-
-export interface CreatePlanPayload {
-  month: number;
-  year: number;
-  plannedIncome: number;
-  savingsGoal: number;
-  status?: PlanStatus;
-  budgets?: PlanBudgetInput[];
-}
-
-export interface UpdatePlanPayload {
-  plannedIncome?: number;
-  savingsGoal?: number;
-  status?: PlanStatus;
-  budgets?: PlanBudgetInput[];
-}
+export type {
+  CreatePlanPayload,
+  FetchCurrentPlanParams,
+  PlanBudgetInput,
+  UpdatePlanPayload,
+};
 
 export const fetchPlans = createAsyncThunk<MonthlyPlan[], void, { rejectValue: string }>(
   'plans/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get<ApiSuccessResponse<{ plans: MonthlyPlan[] }>>('/plans');
-      return res.data.data.plans;
+      return await planService.fetchAll();
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
@@ -38,14 +30,11 @@ export const fetchPlans = createAsyncThunk<MonthlyPlan[], void, { rejectValue: s
 
 export const fetchCurrentPlan = createAsyncThunk<
   MonthlyPlan | null,
-  { month: number; year: number },
+  FetchCurrentPlanParams,
   { rejectValue: string }
->('plans/fetchCurrent', async ({ month, year }, { rejectWithValue }) => {
+>('plans/fetchCurrent', async (params, { rejectWithValue }) => {
   try {
-    const res = await api.get<ApiSuccessResponse<{ plan: MonthlyPlan | null }>>('/plans/current', {
-      params: { month, year },
-    });
-    return res.data.data.plan;
+    return await planService.fetchCurrent(params);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -55,8 +44,7 @@ export const createPlan = createAsyncThunk<MonthlyPlan, CreatePlanPayload, { rej
   'plans/create',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await api.post<ApiSuccessResponse<{ plan: MonthlyPlan }>>('/plans', payload);
-      return res.data.data.plan;
+      return await planService.create(payload);
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
@@ -69,8 +57,7 @@ export const updatePlan = createAsyncThunk<
   { rejectValue: string }
 >('plans/update', async ({ id, data }, { rejectWithValue }) => {
   try {
-    const res = await api.put<ApiSuccessResponse<{ plan: MonthlyPlan }>>(`/plans/${id}`, data);
-    return res.data.data.plan;
+    return await planService.update(id, data);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -82,10 +69,7 @@ export const updatePlanStatus = createAsyncThunk<
   { rejectValue: string }
 >('plans/updateStatus', async ({ id, status }, { rejectWithValue }) => {
   try {
-    const res = await api.patch<ApiSuccessResponse<{ plan: MonthlyPlan }>>(`/plans/${id}/status`, {
-      status,
-    });
-    return res.data.data.plan;
+    return await planService.updateStatus(id, status);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -97,10 +81,7 @@ export const savePlanBudgets = createAsyncThunk<
   { rejectValue: string }
 >('plans/saveBudgets', async ({ id, budgets }, { rejectWithValue }) => {
   try {
-    const res = await api.put<ApiSuccessResponse<{ plan: MonthlyPlan }>>(`/plans/${id}/budgets`, {
-      budgets,
-    });
-    return res.data.data.plan;
+    return await planService.saveBudgets(id, budgets);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }

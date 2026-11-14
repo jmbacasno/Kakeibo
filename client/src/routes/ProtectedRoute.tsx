@@ -7,8 +7,8 @@ export default function ProtectedRoute() {
 
   if (!initialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F7F4]">
-        <div className="text-sm text-[#6B675E] font-medium">Loading your journal...</div>
+      <div className="min-h-screen flex items-center justify-center bg-canvas">
+        <div className="text-sm text-ink-muted font-medium">Loading your journal...</div>
       </div>
     );
   }

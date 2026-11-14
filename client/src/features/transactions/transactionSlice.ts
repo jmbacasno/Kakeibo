@@ -1,41 +1,21 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import api, { getErrorMessage } from '../../services/api';
-import {
-  ApiSuccessResponse,
-  CategoryType,
-  PaginationMeta,
-  Transaction,
-} from '../../types/models';
+import { getErrorMessage } from '../../services/api';
+import { PaginationMeta, Transaction } from '../../types/models';
 import { forceLogout, logoutUser } from '../auth/authSlice';
+import {
+  FetchTransactionsParams,
+  PaginatedTransactionsResponse,
+  transactionService,
+  TransactionFilters,
+  TransactionInputPayload,
+} from './transactionService';
 
-export interface TransactionFilters {
-  type: '' | CategoryType;
-  categoryId: string;
-  startDate: string;
-  endDate: string;
-  search: string;
-  sortBy: 'date' | 'amount';
-  sortOrder: 'asc' | 'desc';
-  page: number;
-  limit: number;
-}
-
-export interface FetchTransactionsParams extends Partial<TransactionFilters> {
-  planId?: number;
-}
-
-export interface TransactionInputPayload {
-  monthlyPlanId: number;
-  categoryId: number;
-  amount: number;
-  description: string;
-  transactionDate: string;
-}
-
-interface PaginatedTransactionsResponse {
-  transactions: Transaction[];
-  pagination: PaginationMeta;
-}
+export type {
+  FetchTransactionsParams,
+  PaginatedTransactionsResponse,
+  TransactionFilters,
+  TransactionInputPayload,
+};
 
 export const fetchTransactions = createAsyncThunk<
   PaginatedTransactionsResponse,
@@ -43,16 +23,7 @@ export const fetchTransactions = createAsyncThunk<
   { rejectValue: string }
 >('transactions/fetchAll', async (params = {}, { rejectWithValue }) => {
   try {
-    const cleanParams: Record<string, string | number> = {};
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== '' && v !== null && v !== undefined) {
-        cleanParams[k] = v;
-      }
-    }
-    const res = await api.get<ApiSuccessResponse<PaginatedTransactionsResponse>>('/transactions', {
-      params: cleanParams,
-    });
-    return res.data.data;
+    return await transactionService.fetchAll(params);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -64,11 +35,7 @@ export const createTransaction = createAsyncThunk<
   { rejectValue: string }
 >('transactions/create', async (payload, { rejectWithValue }) => {
   try {
-    const res = await api.post<ApiSuccessResponse<{ transaction: Transaction }>>(
-      '/transactions',
-      payload
-    );
-    return res.data.data.transaction;
+    return await transactionService.create(payload);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -80,11 +47,7 @@ export const updateTransaction = createAsyncThunk<
   { rejectValue: string }
 >('transactions/update', async ({ id, data }, { rejectWithValue }) => {
   try {
-    const res = await api.put<ApiSuccessResponse<{ transaction: Transaction }>>(
-      `/transactions/${id}`,
-      data
-    );
-    return res.data.data.transaction;
+    return await transactionService.update(id, data);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -94,8 +57,7 @@ export const deleteTransaction = createAsyncThunk<number, number, { rejectValue:
   'transactions/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/transactions/${id}`);
-      return id;
+      return await transactionService.remove(id);
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }

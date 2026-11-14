@@ -59,10 +59,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               role="status"
               className={`pointer-events-auto flex items-start gap-3 rounded-lg border px-4 py-3 shadow-sm transition-all duration-150 ${
                 isError
-                  ? 'bg-[#FDF6F6] border-[#E8C5C5] text-[#8F2A2A]'
+                  ? 'bg-danger-bg border-danger-line text-danger'
                   : isInfo
-                  ? 'bg-[#F4F6FA] border-[#CAD5E6] text-[#29436A]'
-                  : 'bg-[#F4FAF6] border-[#C2DFCE] text-[#1F543B]'
+                  ? 'bg-accent-soft border-accent-line text-accent-text'
+                  : 'bg-success-bg border-success-line text-success'
               }`}
             >
               {isError ? (
@@ -77,7 +77,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={() => removeToast(item.id)}
                 aria-label="Dismiss notification"
-                className="p-0.5 rounded hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-[#355482]"
+                className="p-0.5 rounded hover:bg-subtle focus-visible:outline-2 focus-visible:outline-accent-text"
               >
                 <X className="w-4 h-4" />
               </button>

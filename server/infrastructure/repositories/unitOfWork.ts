@@ -6,6 +6,7 @@ import { NoteRepositoryInterface } from "../../domain/repositories/noteRepositor
 import { TransactionRepositoryInterface } from "../../domain/repositories/transactionRepositoryInterface.js";
 import { UnitOfWorkInterface } from "../../domain/repositories/unitOfWorkInterface.js";
 import { UserRepositoryInterface } from "../../domain/repositories/userRepositoryInterface.js";
+import { UserSettingsRepositoryInterface } from "../../domain/repositories/userSettingsRepositoryInterface.js";
 import { prisma } from "../persistence/clients/prisma.js";
 import { CategoryBudgetRepository } from "./categoryBudgetRepository.js";
 import { CategoryRepository } from "./categoryRepository.js";
@@ -14,6 +15,7 @@ import { MonthlyReflectionRepository } from "./monthlyReflectionRepository.js";
 import { NoteRepository } from "./noteRepository.js";
 import { TransactionRepository } from "./transactionRepository.js";
 import { UserRepository } from "./userRepository.js";
+import { UserSettingsRepository } from "./userSettingsRepository.js";
 
 export class UnitOfWork implements UnitOfWorkInterface {
   public users: UserRepositoryInterface;
@@ -23,6 +25,7 @@ export class UnitOfWork implements UnitOfWorkInterface {
   public transactions: TransactionRepositoryInterface;
   public notes: NoteRepositoryInterface;
   public monthlyReflections: MonthlyReflectionRepositoryInterface;
+  public userSettings: UserSettingsRepositoryInterface;
 
   constructor(
     users?: UserRepositoryInterface,
@@ -31,7 +34,8 @@ export class UnitOfWork implements UnitOfWorkInterface {
     categoryBudgets?: CategoryBudgetRepositoryInterface,
     transactions?: TransactionRepositoryInterface,
     notes?: NoteRepositoryInterface,
-    monthlyReflections?: MonthlyReflectionRepositoryInterface
+    monthlyReflections?: MonthlyReflectionRepositoryInterface,
+    userSettings?: UserSettingsRepositoryInterface
   ) {
     this.users = users || new UserRepository();
     this.categories = categories || new CategoryRepository();
@@ -40,6 +44,7 @@ export class UnitOfWork implements UnitOfWorkInterface {
     this.transactions = transactions || new TransactionRepository();
     this.notes = notes || new NoteRepository();
     this.monthlyReflections = monthlyReflections || new MonthlyReflectionRepository();
+    this.userSettings = userSettings || new UserSettingsRepository();
   }
 
   async commit(): Promise<void> {
@@ -55,7 +60,8 @@ export class UnitOfWork implements UnitOfWorkInterface {
         new CategoryBudgetRepository(tx),
         new TransactionRepository(tx),
         new NoteRepository(tx),
-        new MonthlyReflectionRepository(tx)
+        new MonthlyReflectionRepository(tx),
+        new UserSettingsRepository(tx)
       );
       return work(txUow);
     });

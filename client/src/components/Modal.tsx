@@ -31,28 +31,28 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1B18]/40 backdrop-blur-[1px]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim backdrop-blur-[1px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
       onClick={onClose}
     >
       <div
-        className={`w-full ${maxWidth} rounded-xl bg-white border border-[#E5E2DC] shadow-lg overflow-hidden`}
+        className={`w-full ${maxWidth} rounded-xl bg-surface border border-line shadow-lg overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-[#E5E2DC]">
+        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-line">
           <div>
-            <h2 id="modal-title" className="text-base font-semibold text-[#1C1B18]">
+            <h2 id="modal-title" className="text-base font-semibold text-ink">
               {title}
             </h2>
-            {subtitle && <p className="text-xs text-[#6B675E] mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-ink-muted mt-0.5">{subtitle}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-1.5 rounded-lg text-[#6B675E] hover:text-[#1C1B18] hover:bg-[#F1EFEA] transition-colors focus-visible:outline-2 focus-visible:outline-[#355482]"
+            className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-subtle transition-colors focus-visible:outline-2 focus-visible:outline-accent-text"
           >
             <X className="w-4 h-4" />
           </button>

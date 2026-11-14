@@ -45,6 +45,8 @@ function PlanEditorForm({
 }: PlanEditorFormProps) {
   const dispatch = useAppDispatch();
   const toast = useToast();
+  const activeCurrency = useAppSelector((state) => state.settings.data?.currency || 'USD');
+  const isZeroDecimal = activeCurrency === 'JPY';
 
   const initialBudgets = useMemo(() => {
     const map: Record<number, string> = {};
@@ -158,19 +160,19 @@ function PlanEditorForm({
         {formError && (
           <div
             role="alert"
-            className="rounded-lg bg-[#FDF6F6] border border-[#E8C5C5] px-4 py-3 text-sm text-[#8F2A2A]"
+            className="rounded-lg bg-danger-bg border border-danger-line px-4 py-3 text-sm text-danger"
           >
             {formError}
           </div>
         )}
 
-        <section className="bg-white border border-[#E5E2DC] rounded-xl p-6 space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E2DC] pb-4">
+        <section className="bg-surface border border-line rounded-xl p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
             <div>
-              <h3 className="text-sm font-semibold text-[#1C1B18]">
+              <h3 className="text-sm font-semibold text-ink">
                 01. Income &amp; Savings Intention
               </h3>
-              <p className="text-xs text-[#6B675E] mt-0.5">
+              <p className="text-xs text-ink-muted mt-0.5">
                 Define how much you expect to receive and how much you aim to keep.
               </p>
             </div>
@@ -183,7 +185,7 @@ function PlanEditorForm({
                 id="plan-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as PlanStatus)}
-                className="px-3 py-1.5 text-xs font-medium bg-[#F8F7F4] border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482]"
+                className="px-3 py-1.5 text-xs font-medium bg-canvas border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text"
               >
                 <option value="DRAFT">Status: Draft</option>
                 <option value="ACTIVE">Status: Active</option>
@@ -196,50 +198,50 @@ function PlanEditorForm({
             <div>
               <label
                 htmlFor="planned-income"
-                className="block text-xs font-medium text-[#4A4740] mb-1.5"
+                className="block text-xs font-medium text-ink-secondary mb-1.5"
               >
-                Expected monthly income (USD)
+                Expected monthly income ({activeCurrency})
               </label>
               <input
                 id="planned-income"
                 type="number"
-                step="0.01"
+                step={isZeroDecimal ? '1' : '0.01'}
                 min="0"
                 value={plannedIncome}
                 onChange={(e) => setPlannedIncome(e.target.value)}
-                placeholder="0.00"
-                className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+                placeholder={isZeroDecimal ? '0' : '0.00'}
+                className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
               />
             </div>
 
             <div>
               <label
                 htmlFor="savings-goal"
-                className="block text-xs font-medium text-[#4A4740] mb-1.5"
+                className="block text-xs font-medium text-ink-secondary mb-1.5"
               >
-                Monthly savings goal (USD)
+                Monthly savings goal ({activeCurrency})
               </label>
               <input
                 id="savings-goal"
                 type="number"
-                step="0.01"
+                step={isZeroDecimal ? '1' : '0.01'}
                 min="0"
                 value={savingsGoal}
                 onChange={(e) => setSavingsGoal(e.target.value)}
-                placeholder="0.00"
-                className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+                placeholder={isZeroDecimal ? '0' : '0.00'}
+                className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
               />
             </div>
           </div>
         </section>
 
-        <section className="bg-white border border-[#E5E2DC] rounded-xl p-6 space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E2DC] pb-4">
+        <section className="bg-surface border border-line rounded-xl p-6 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
             <div>
-              <h3 className="text-sm font-semibold text-[#1C1B18]">
+              <h3 className="text-sm font-semibold text-ink">
                 02. Expense Category Budgets
               </h3>
-              <p className="text-xs text-[#6B675E] mt-0.5">
+              <p className="text-xs text-ink-muted mt-0.5">
                 Allocate spending limits across your Kakeibo pillars and custom categories.
               </p>
             </div>
@@ -247,14 +249,14 @@ function PlanEditorForm({
             <button
               type="button"
               onClick={onOpenNewCategory}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#355482] bg-[#EEF2F7] hover:bg-[#E1E8F2] rounded-lg transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-accent-text bg-accent-soft hover:bg-accent-soft-hover rounded-lg transition-colors whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>New expense category</span>
             </button>
           </div>
 
-          <div className="divide-y divide-[#E5E2DC]">
+          <div className="divide-y divide-line">
             {planExpenseCategories.map((cat) => {
               const pillar = KAKEIBO_PILLAR_META[cat.name];
               return (
@@ -266,19 +268,19 @@ function PlanEditorForm({
                     <div className="flex items-center gap-2">
                       <label
                         htmlFor={`budget-${cat.id}`}
-                        className="text-sm font-medium text-[#1C1B18]"
+                        className="text-sm font-medium text-ink"
                       >
                         {cat.name}
                       </label>
                       {pillar && (
-                        <span className="text-xs text-[#6B675E]">· {pillar.jp}</span>
+                        <span className="text-xs text-ink-muted">· {pillar.jp}</span>
                       )}
                       {!cat.isActive && (
-                        <span className="text-xs text-[#6B675E]">· Archived</span>
+                        <span className="text-xs text-ink-muted">· Archived</span>
                       )}
                     </div>
                     {pillar && (
-                      <p className="text-xs text-[#6B675E] mt-0.5">{pillar.description}</p>
+                      <p className="text-xs text-ink-muted mt-0.5">{pillar.description}</p>
                     )}
                   </div>
 
@@ -295,7 +297,7 @@ function PlanEditorForm({
                           [cat.id]: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 text-sm font-mono tabular-nums text-right bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+                      className="w-full px-3 py-2 text-sm font-mono tabular-nums text-right bg-surface border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
                     />
                   </div>
                 </div>
@@ -306,41 +308,41 @@ function PlanEditorForm({
       </div>
 
       <div className="lg:col-span-4 space-y-6">
-        <section className="bg-white border border-[#E5E2DC] rounded-xl p-6 space-y-4 sticky top-20">
-          <h3 className="text-sm font-semibold text-[#1C1B18]">03. Plan Review</h3>
+        <section className="bg-surface border border-line rounded-xl p-6 space-y-4 sticky top-20">
+          <h3 className="text-sm font-semibold text-ink">03. Plan Review</h3>
 
-          <div className="space-y-3 text-sm border-t border-b border-[#E5E2DC] py-4">
+          <div className="space-y-3 text-sm border-t border-b border-line py-4">
             <div className="flex items-center justify-between">
-              <span className="text-[#6B675E]">Planned income</span>
-              <span className="font-mono tabular-nums font-medium text-[#1C1B18]">
+              <span className="text-ink-muted">Planned income</span>
+              <span className="font-mono tabular-nums font-medium text-ink">
                 {formatCurrency(reviewMetrics.plannedIncome)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[#6B675E]">Savings goal</span>
-              <span className="font-mono tabular-nums font-medium text-[#2A6F4E]">
+              <span className="text-ink-muted">Savings goal</span>
+              <span className="font-mono tabular-nums font-medium text-success-accent">
                 -{formatCurrency(reviewMetrics.savingsGoal)}
               </span>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-[#E5E2DC]">
-              <span className="font-medium text-[#1C1B18]">Available for spending</span>
-              <span className="font-mono tabular-nums font-semibold text-[#1C1B18]">
+            <div className="flex items-center justify-between pt-2 border-t border-line">
+              <span className="font-medium text-ink">Available for spending</span>
+              <span className="font-mono tabular-nums font-semibold text-ink">
                 {formatCurrency(reviewMetrics.plannedAvailable)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[#6B675E]">Allocated category budgets</span>
-              <span className="font-mono tabular-nums font-medium text-[#1C1B18]">
+              <span className="text-ink-muted">Allocated category budgets</span>
+              <span className="font-mono tabular-nums font-medium text-ink">
                 {formatCurrency(reviewMetrics.totalAllocated)}
               </span>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-[#E5E2DC]">
-              <span className="text-[#6B675E]">
+            <div className="flex items-center justify-between pt-2 border-t border-line">
+              <span className="text-ink-muted">
                 {reviewMetrics.exceedsAvailable ? 'Over-allocated by' : 'Unallocated buffer'}
               </span>
               <span
                 className={`font-mono tabular-nums font-semibold ${
-                  reviewMetrics.exceedsAvailable ? 'text-[#B4690E]' : 'text-[#2A6F4E]'
+                  reviewMetrics.exceedsAvailable ? 'text-warning-accent' : 'text-success-accent'
                 }`}
               >
                 {formatCurrency(Math.abs(reviewMetrics.difference))}
@@ -351,7 +353,7 @@ function PlanEditorForm({
           {reviewMetrics.exceedsAvailable ? (
             <div
               role="status"
-              className="flex items-start gap-2.5 rounded-lg bg-[#FEF9EE] border border-[#EAD4A3] px-3.5 py-3 text-xs text-[#8A510A]"
+              className="flex items-start gap-2.5 rounded-lg bg-warning-bg border border-warning-line px-3.5 py-3 text-xs text-warning"
             >
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <p className="leading-relaxed">
@@ -364,7 +366,7 @@ function PlanEditorForm({
               </p>
             </div>
           ) : (
-            <div className="flex items-start gap-2.5 rounded-lg bg-[#F4FAF6] border border-[#C2DFCE] px-3.5 py-3 text-xs text-[#1F543B]">
+            <div className="flex items-start gap-2.5 rounded-lg bg-success-bg border border-success-line px-3.5 py-3 text-xs text-success">
               <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
               <p className="leading-relaxed">
                 Your category budgets fit within your planned spending capacity.
@@ -375,7 +377,7 @@ function PlanEditorForm({
           <button
             type="submit"
             disabled={saving}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#355482] hover:bg-[#29436A] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
           >
             <Save className="w-4 h-4" />
             <span>
@@ -470,10 +472,10 @@ export default function MonthlyPlanPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl font-semibold text-[#1C1B18]">
+          <h2 className="font-serif text-2xl font-semibold text-ink">
             {formatMonthYear(selectedMonth, selectedYear)} Plan
           </h2>
-          <p className="text-xs text-[#6B675E] mt-1">
+          <p className="text-xs text-ink-muted mt-1">
             {activePlan && activePlan.updatedAt
               ? `Editing existing plan · Last updated ${new Date(activePlan.updatedAt).toLocaleDateString()}`
               : 'Step 1: Set expected income, savings goal, and category budgets'}
@@ -483,7 +485,7 @@ export default function MonthlyPlanPage() {
         <button
           type="button"
           onClick={() => setFutureModalOpen(true)}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-[#4A4740] bg-white border border-[#D8D4CC] rounded-lg hover:bg-[#F1EFEA] transition-colors whitespace-nowrap"
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle transition-colors whitespace-nowrap"
         >
           <CalendarPlus className="w-4 h-4" />
           <span>Plan another month</span>
@@ -504,23 +506,23 @@ export default function MonthlyPlanPage() {
         />
       )}
 
-      <section className="bg-white border border-[#E5E2DC] rounded-xl p-6">
+      <section className="bg-surface border border-line rounded-xl p-6">
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-[#1C1B18]">All Monthly Plans</h3>
-          <p className="text-xs text-[#6B675E] mt-0.5">
+          <h3 className="text-sm font-semibold text-ink">All Monthly Plans</h3>
+          <p className="text-xs text-ink-muted mt-0.5">
             Compare planned targets against actual results across months. Click any row to load it.
           </p>
         </div>
 
         {plans.length === 0 ? (
-          <p className="text-xs text-[#6B675E] py-6 text-center">
+          <p className="text-xs text-ink-muted py-6 text-center">
             No monthly plans saved yet. Create your first plan above.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#E5E2DC] text-xs font-medium text-[#6B675E]">
+                <tr className="border-b border-line text-xs font-medium text-ink-muted">
                   <th className="py-2.5 pr-4">Period</th>
                   <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-3 text-right">Planned Income</th>
@@ -530,7 +532,7 @@ export default function MonthlyPlanPage() {
                   <th className="py-2.5 pl-3 text-right">Actual Savings</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5E2DC] text-sm">
+              <tbody className="divide-y divide-line text-sm">
                 {plans.map((p) => {
                   const isSelected = p.month === selectedMonth && p.year === selectedYear;
                   return (
@@ -540,30 +542,30 @@ export default function MonthlyPlanPage() {
                         dispatch(setSelectedPeriod({ month: p.month, year: p.year }))
                       }
                       className={`cursor-pointer transition-colors ${
-                        isSelected ? 'bg-[#EEF2F7]/60' : 'hover:bg-[#F8F7F4]'
+                        isSelected ? 'bg-accent-soft/60' : 'hover:bg-surface-muted'
                       }`}
                     >
-                      <td className="py-3 pr-4 font-medium text-[#1C1B18] whitespace-nowrap">
+                      <td className="py-3 pr-4 font-medium text-ink whitespace-nowrap">
                         {formatMonthYear(p.month, p.year)}
                       </td>
-                      <td className="py-3 px-3 text-xs text-[#6B675E] capitalize whitespace-nowrap">
+                      <td className="py-3 px-3 text-xs text-ink-muted capitalize whitespace-nowrap">
                         {p.status.toLowerCase()}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono tabular-nums text-[#4A4740]">
+                      <td className="py-3 px-3 text-right font-mono tabular-nums text-ink-secondary">
                         {formatCurrency(p.plannedIncome)}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono tabular-nums text-[#2A6F4E]">
+                      <td className="py-3 px-3 text-right font-mono tabular-nums text-success-accent">
                         {formatCurrency(p.summary.actualIncome)}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono tabular-nums text-[#4A4740]">
+                      <td className="py-3 px-3 text-right font-mono tabular-nums text-ink-secondary">
                         {formatCurrency(p.summary.totalAllocatedBudget)}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono tabular-nums text-[#1C1B18]">
+                      <td className="py-3 px-3 text-right font-mono tabular-nums text-ink">
                         {formatCurrency(p.summary.totalExpenses)}
                       </td>
                       <td
                         className={`py-3 pl-3 text-right font-mono tabular-nums font-medium ${
-                          p.summary.actualSavings >= 0 ? 'text-[#355482]' : 'text-[#B83B3B]'
+                          p.summary.actualSavings >= 0 ? 'text-accent-text' : 'text-danger-accent'
                         }`}
                       >
                         {formatCurrency(p.summary.actualSavings)}
@@ -586,12 +588,12 @@ export default function MonthlyPlanPage() {
       >
         <form onSubmit={handleCreateCustomCategory} className="space-y-4">
           {newCatError && (
-            <div className="rounded-lg bg-[#FDF6F6] border border-[#E8C5C5] px-3.5 py-2.5 text-sm text-[#8F2A2A]">
+            <div className="rounded-lg bg-danger-bg border border-danger-line px-3.5 py-2.5 text-sm text-danger">
               {newCatError}
             </div>
           )}
           <div>
-            <label htmlFor="new-expense-cat" className="block text-xs font-medium text-[#4A4740] mb-1.5">
+            <label htmlFor="new-expense-cat" className="block text-xs font-medium text-ink-secondary mb-1.5">
               Category name
             </label>
             <input
@@ -600,20 +602,20 @@ export default function MonthlyPlanPage() {
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               placeholder="e.g., Dining Out, Utilities, Subscriptions"
-              className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2 border-t border-[#E5E2DC]">
+          <div className="flex justify-end gap-3 pt-2 border-t border-line">
             <button
               type="button"
               onClick={() => setNewCatModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-[#4A4740] bg-white border border-[#D8D4CC] rounded-lg hover:bg-[#F1EFEA]"
+              className="px-4 py-2 text-sm font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-[#355482] hover:bg-[#29436A] rounded-lg"
+              className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg"
             >
               Create category
             </button>
@@ -631,14 +633,14 @@ export default function MonthlyPlanPage() {
         <form onSubmit={handleSwitchToPeriod} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="target-month" className="block text-xs font-medium text-[#4A4740] mb-1.5">
+              <label htmlFor="target-month" className="block text-xs font-medium text-ink-secondary mb-1.5">
                 Month
               </label>
               <select
                 id="target-month"
                 value={futureMonth}
                 onChange={(e) => setFutureMonth(Number(e.target.value))}
-                className="w-full px-3 py-2 text-sm bg-white border border-[#D8D4CC] rounded-lg"
+                className="w-full px-3 py-2 text-sm bg-surface border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text"
               >
                 {MONTH_NAMES.map((name, i) => (
                   <option key={name} value={i + 1}>
@@ -648,7 +650,7 @@ export default function MonthlyPlanPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="target-year" className="block text-xs font-medium text-[#4A4740] mb-1.5">
+              <label htmlFor="target-year" className="block text-xs font-medium text-ink-secondary mb-1.5">
                 Year
               </label>
               <input
@@ -658,21 +660,21 @@ export default function MonthlyPlanPage() {
                 max="2100"
                 value={futureYear}
                 onChange={(e) => setFutureYear(Number(e.target.value))}
-                className="w-full px-3 py-2 text-sm font-mono tabular-nums bg-white border border-[#D8D4CC] rounded-lg"
+                className="w-full px-3 py-2 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text"
               />
             </div>
           </div>
-          <div className="flex justify-end gap-3 pt-2 border-t border-[#E5E2DC]">
+          <div className="flex justify-end gap-3 pt-2 border-t border-line">
             <button
               type="button"
               onClick={() => setFutureModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-[#4A4740] bg-white border border-[#D8D4CC] rounded-lg hover:bg-[#F1EFEA]"
+              className="px-4 py-2 text-sm font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-[#355482] hover:bg-[#29436A] rounded-lg"
+              className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg"
             >
               Open month
             </button>

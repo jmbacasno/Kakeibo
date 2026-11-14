@@ -1,18 +1,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import api, { getErrorMessage } from '../../services/api';
-import { ApiSuccessResponse, DashboardData } from '../../types/models';
+import { getErrorMessage } from '../../services/api';
+import { DashboardData } from '../../types/models';
 import { forceLogout, logoutUser } from '../auth/authSlice';
+import { dashboardService, FetchDashboardParams } from './dashboardService';
+
+export type { FetchDashboardParams };
 
 export const fetchDashboard = createAsyncThunk<
   DashboardData,
-  { month: number; year: number },
+  FetchDashboardParams,
   { rejectValue: string }
->('dashboard/fetch', async ({ month, year }, { rejectWithValue }) => {
+>('dashboard/fetch', async (params, { rejectWithValue }) => {
   try {
-    const res = await api.get<ApiSuccessResponse<DashboardData>>('/dashboard', {
-      params: { month, year },
-    });
-    return res.data.data;
+    return await dashboardService.fetchSummary(params);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }

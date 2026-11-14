@@ -126,18 +126,18 @@ export default function CategoriesPage() {
   };
 
   const renderSection = (title: string, subtitle: string, list: Category[]) => (
-    <section className="bg-white border border-[#E5E2DC] rounded-xl overflow-hidden">
-      <div className="px-6 py-4 border-b border-[#E5E2DC] flex items-center justify-between gap-4">
+    <section className="bg-surface border border-line rounded-xl overflow-hidden">
+      <div className="px-6 py-4 border-b border-line flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-[#1C1B18]">{title}</h3>
-          <p className="text-xs text-[#6B675E] mt-0.5">{subtitle}</p>
+          <h3 className="text-sm font-semibold text-ink">{title}</h3>
+          <p className="text-xs text-ink-muted mt-0.5">{subtitle}</p>
         </div>
-        <span className="text-xs font-mono tabular-nums text-[#6B675E]">
+        <span className="text-xs font-mono tabular-nums text-ink-muted">
           {list.filter((c) => c.isActive).length} active · {list.length} total
         </span>
       </div>
 
-      <div className="divide-y divide-[#E5E2DC]">
+      <div className="divide-y divide-line">
         {list.map((cat) => {
           const pillar = KAKEIBO_PILLAR_META[cat.name];
           const txCount = cat._count?.transactions || 0;
@@ -148,30 +148,30 @@ export default function CategoriesPage() {
             <div
               key={cat.id}
               className={`px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                !cat.isActive ? 'bg-[#FAF9F6]/70' : ''
+                !cat.isActive ? 'bg-surface-muted/70' : ''
               }`}
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={`text-sm font-medium ${
-                      cat.isActive ? 'text-[#1C1B18]' : 'text-[#6B675E] line-through'
+                      cat.isActive ? 'text-ink' : 'text-ink-muted line-through'
                     }`}
                   >
                     {cat.name}
                   </span>
                   {pillar && (
-                    <span className="text-xs text-[#6B675E]">· {pillar.jp}</span>
+                    <span className="text-xs text-ink-muted">· {pillar.jp}</span>
                   )}
-                  <span className="text-xs text-[#6B675E]">
+                  <span className="text-xs text-ink-muted">
                     · {cat.isDefault ? 'Default' : 'Custom'}
                   </span>
                   {!cat.isActive && (
-                    <span className="text-xs text-[#B4690E] font-medium">· Archived</span>
+                    <span className="text-xs text-warning-accent font-medium">· Archived</span>
                   )}
                 </div>
 
-                <p className="text-xs text-[#6B675E] mt-0.5">
+                <p className="text-xs text-ink-muted mt-0.5">
                   {pillar ? `${pillar.description} · ` : ''}
                   <span className="font-mono tabular-nums">
                     {txCount} {txCount === 1 ? 'transaction' : 'transactions'}
@@ -186,7 +186,7 @@ export default function CategoriesPage() {
                 <button
                   type="button"
                   onClick={() => openEditModal(cat)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-[#4A4740] bg-white border border-[#D8D4CC] rounded-lg hover:bg-[#F1EFEA] transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle transition-colors whitespace-nowrap"
                 >
                   <Pencil className="w-3.5 h-3.5" />
                   <span>Rename</span>
@@ -195,7 +195,7 @@ export default function CategoriesPage() {
                 <button
                   type="button"
                   onClick={() => handleToggleStatus(cat)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-[#4A4740] bg-white border border-[#D8D4CC] rounded-lg hover:bg-[#F1EFEA] transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle transition-colors whitespace-nowrap"
                 >
                   {cat.isActive ? (
                     <>
@@ -215,7 +215,7 @@ export default function CategoriesPage() {
                     type="button"
                     onClick={() => setDeletingCat(cat)}
                     aria-label={`Delete ${cat.name}`}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#B83B3B] bg-white border border-[#E8C5C5] rounded-lg hover:bg-[#FDF6F6] transition-colors whitespace-nowrap"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-danger-accent bg-surface border border-danger-line rounded-lg hover:bg-danger-bg transition-colors whitespace-nowrap"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>
@@ -233,14 +233,14 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl font-semibold text-[#1C1B18]">Categories</h2>
-          <p className="text-xs text-[#6B675E] mt-1">
+          <h2 className="font-serif text-2xl font-semibold text-ink">Categories</h2>
+          <p className="text-xs text-ink-muted mt-1">
             Organize income sources and expense pillars. Archive categories to keep past records intact.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="inline-flex p-1 bg-[#EAE7E0] rounded-lg">
+          <div className="inline-flex p-1 bg-subtle-strong rounded-lg">
             {(['ALL', 'EXPENSE', 'INCOME'] as CategoryTypeFilter[]).map((tab) => (
               <button
                 key={tab}
@@ -248,8 +248,8 @@ export default function CategoriesPage() {
                 onClick={() => setTypeFilter(tab)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                   typeFilter === tab
-                    ? 'bg-white text-[#1C1B18] shadow-xs'
-                    : 'text-[#6B675E] hover:text-[#1C1B18]'
+                    ? 'bg-surface text-ink shadow-xs'
+                    : 'text-ink-muted hover:text-ink'
                 }`}
               >
                 {tab === 'ALL' ? 'All' : tab === 'EXPENSE' ? 'Expense' : 'Income'}
@@ -262,7 +262,7 @@ export default function CategoriesPage() {
             onClick={() =>
               openCreateModal(typeFilter === 'INCOME' ? 'INCOME' : 'EXPENSE')
             }
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#355482] hover:bg-[#29436A] text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
             <span>New category</span>
@@ -303,24 +303,24 @@ export default function CategoriesPage() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError && (
-            <div className="rounded-lg bg-[#FDF6F6] border border-[#E8C5C5] px-3.5 py-2.5 text-sm text-[#8F2A2A]">
+            <div className="rounded-lg bg-danger-bg border border-danger-line px-3.5 py-2.5 text-sm text-danger">
               {formError}
             </div>
           )}
 
           {!editingCat && (
             <div>
-              <span className="block text-xs font-medium text-[#4A4740] mb-1.5">
+              <span className="block text-xs font-medium text-ink-secondary mb-1.5">
                 Category type
               </span>
-              <div className="grid grid-cols-2 gap-1 p-1 bg-[#F1EFEA] rounded-lg">
+              <div className="grid grid-cols-2 gap-1 p-1 bg-subtle rounded-lg">
                 <button
                   type="button"
                   onClick={() => setCatType('EXPENSE')}
                   className={`py-2 text-sm font-medium rounded-md transition-colors ${
                     catType === 'EXPENSE'
-                      ? 'bg-white text-[#1C1B18] shadow-xs'
-                      : 'text-[#6B675E] hover:text-[#1C1B18]'
+                      ? 'bg-surface text-ink shadow-xs'
+                      : 'text-ink-muted hover:text-ink'
                   }`}
                 >
                   Expense
@@ -330,8 +330,8 @@ export default function CategoriesPage() {
                   onClick={() => setCatType('INCOME')}
                   className={`py-2 text-sm font-medium rounded-md transition-colors ${
                     catType === 'INCOME'
-                      ? 'bg-white text-[#1C1B18] shadow-xs'
-                      : 'text-[#6B675E] hover:text-[#1C1B18]'
+                      ? 'bg-surface text-ink shadow-xs'
+                      : 'text-ink-muted hover:text-ink'
                   }`}
                 >
                   Income
@@ -341,7 +341,7 @@ export default function CategoriesPage() {
           )}
 
           <div>
-            <label htmlFor="cat-name" className="block text-xs font-medium text-[#4A4740] mb-1.5">
+            <label htmlFor="cat-name" className="block text-xs font-medium text-ink-secondary mb-1.5">
               Category name
             </label>
             <input
@@ -351,22 +351,22 @@ export default function CategoriesPage() {
               value={catName}
               onChange={(e) => setCatName(e.target.value)}
               placeholder={catType === 'EXPENSE' ? 'e.g., Groceries' : 'e.g., Consulting'}
-              className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-2 border-t border-[#E5E2DC]">
+          <div className="flex justify-end gap-3 pt-2 border-t border-line">
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-[#4A4740] bg-white border border-[#D8D4CC] rounded-lg hover:bg-[#F1EFEA]"
+              className="px-4 py-2 text-sm font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#355482] hover:bg-[#29436A] rounded-lg disabled:opacity-60"
+              className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg disabled:opacity-60"
             >
               {saving ? 'Saving...' : editingCat ? 'Save name' : 'Create category'}
             </button>

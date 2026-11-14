@@ -5,7 +5,7 @@ dotenv.config();
 
 function resolveDatabaseUrl(): string {
   const configured = process.env.DATABASE_URL;
-  if (!configured || configured === "file:./dev.db") {
+  if (!configured || configured === "file:./dev.db" || !configured.startsWith("file:")) {
     const resolved = `file:${path.resolve(process.cwd(), "server/prisma/dev.db")}`;
     process.env.DATABASE_URL = resolved;
     return resolved;

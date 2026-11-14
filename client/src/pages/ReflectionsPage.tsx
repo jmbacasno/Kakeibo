@@ -92,16 +92,16 @@ function ReflectionEditor({
   };
 
   return (
-    <section className="lg:col-span-7 bg-white border border-[#E5E2DC] rounded-xl p-6 space-y-5">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#E5E2DC] pb-4">
+    <section className="lg:col-span-7 bg-surface border border-line rounded-xl p-6 space-y-5">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-4">
         <div>
-          <h3 className="text-sm font-semibold text-[#1C1B18] flex items-center gap-2">
-            <BookOpenCheck className="w-4 h-4 text-[#355482]" />
+          <h3 className="text-sm font-semibold text-ink flex items-center gap-2">
+            <BookOpenCheck className="w-4 h-4 text-accent-text" />
             <span>
               {currentReflection ? 'Your Monthly Reflection' : 'Write Monthly Reflection'}
             </span>
           </h3>
-          <p className="text-xs text-[#6B675E] mt-0.5">
+          <p className="text-xs text-ink-muted mt-0.5">
             {currentReflection
               ? `Last updated ${formatDateTimeDisplay(currentReflection.updatedAt)}`
               : 'One reflection per monthly plan. Use optional prompts below if helpful.'}
@@ -112,7 +112,7 @@ function ReflectionEditor({
           <button
             type="button"
             onClick={onRequestDelete}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#B83B3B] bg-white border border-[#E8C5C5] rounded-lg hover:bg-[#FDF6F6] transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-danger-accent bg-surface border border-danger-line rounded-lg hover:bg-danger-bg transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Delete</span>
@@ -121,7 +121,7 @@ function ReflectionEditor({
       </div>
 
       <div>
-        <p className="text-xs font-medium text-[#6B675E] mb-2">
+        <p className="text-xs font-medium text-ink-muted mb-2">
           Optional Kakeibo prompts (click to insert into editor):
         </p>
         <div className="flex flex-wrap gap-2">
@@ -130,7 +130,7 @@ function ReflectionEditor({
               key={q}
               type="button"
               onClick={() => insertPrompt(q)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-[#355482] bg-[#EEF2F7] hover:bg-[#E1E8F2] rounded-md transition-colors text-left"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-accent-text bg-accent-soft hover:bg-accent-soft-hover rounded-md transition-colors text-left"
             >
               <Plus className="w-3 h-3 shrink-0" />
               <span>{q}</span>
@@ -142,7 +142,7 @@ function ReflectionEditor({
       {formError && (
         <div
           role="alert"
-          className="rounded-lg bg-[#FDF6F6] border border-[#E8C5C5] px-3.5 py-2.5 text-sm text-[#8F2A2A]"
+          className="rounded-lg bg-danger-bg border border-danger-line px-3.5 py-2.5 text-sm text-danger"
         >
           {formError}
         </div>
@@ -160,7 +160,7 @@ function ReflectionEditor({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Take a quiet moment to write about what went well this month, what surprised you, and one gentle adjustment for next month..."
-            className="w-full px-4 py-3 text-sm bg-[#FAF9F6] border border-[#D8D4CC] rounded-lg text-[#1C1B18] leading-relaxed focus:outline-none focus:bg-white focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+            className="w-full px-4 py-3 text-sm bg-surface-muted border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder leading-relaxed focus:outline-none focus:bg-surface focus:border-accent-text focus:ring-2 focus:ring-accent/15"
           />
         </div>
 
@@ -168,7 +168,7 @@ function ReflectionEditor({
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#355482] hover:bg-[#29436A] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
           >
             <Save className="w-4 h-4" />
             <span>
@@ -230,10 +230,10 @@ export default function ReflectionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-serif text-2xl font-semibold text-[#1C1B18]">
+        <h2 className="font-serif text-2xl font-semibold text-ink">
           {formatMonthYear(selectedMonth, selectedYear)} Reflection
         </h2>
-        <p className="text-xs text-[#6B675E] mt-1">
+        <p className="text-xs text-ink-muted mt-1">
           Review the month’s numbers calmly and reflect on your spending habits
         </p>
       </div>
@@ -248,7 +248,7 @@ export default function ReflectionsPage() {
           action={
             <Link
               to="/plan"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#355482] hover:bg-[#29436A] text-white text-sm font-medium rounded-lg"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg"
             >
               Create monthly plan
             </Link>
@@ -257,34 +257,34 @@ export default function ReflectionsPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <aside className="lg:col-span-5 space-y-6">
-            <section className="bg-white border border-[#E5E2DC] rounded-xl p-6 space-y-5">
+            <section className="bg-surface border border-line rounded-xl p-6 space-y-5">
               <div>
-                <h3 className="text-sm font-semibold text-[#1C1B18]">Month-End Financial Review</h3>
-                <p className="text-xs text-[#6B675E] mt-0.5">
+                <h3 className="text-sm font-semibold text-ink">Month-End Financial Review</h3>
+                <p className="text-xs text-ink-muted mt-0.5">
                   Actual outcomes for {formatMonthYear(activePlan.month, activePlan.year)}
                 </p>
               </div>
 
-              <div className="space-y-3 text-sm border-t border-b border-[#E5E2DC] py-4">
+              <div className="space-y-3 text-sm border-t border-b border-line py-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B675E]">Planned vs. Actual income</span>
-                  <span className="font-mono tabular-nums text-[#1C1B18]">
+                  <span className="text-ink-muted">Planned vs. Actual income</span>
+                  <span className="font-mono tabular-nums text-ink">
                     {formatCurrency(summary.plannedIncome)} /{' '}
-                    <strong className="text-[#2A6F4E]">
+                    <strong className="text-success-accent">
                       {formatCurrency(summary.actualIncome)}
                     </strong>
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B675E]">Savings goal vs. Actual</span>
-                  <span className="font-mono tabular-nums text-[#1C1B18]">
+                  <span className="text-ink-muted">Savings goal vs. Actual</span>
+                  <span className="font-mono tabular-nums text-ink">
                     {formatCurrency(summary.savingsGoal)} /{' '}
                     <strong
                       className={
                         summary.actualSavings >= summary.savingsGoal
-                          ? 'text-[#2A6F4E]'
-                          : 'text-[#B83B3B]'
+                          ? 'text-success-accent'
+                          : 'text-danger-accent'
                       }
                     >
                       {formatCurrency(summary.actualSavings)}
@@ -293,17 +293,17 @@ export default function ReflectionsPage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B675E]">Total expenses</span>
-                  <span className="font-mono tabular-nums font-medium text-[#1C1B18]">
+                  <span className="text-ink-muted">Total expenses</span>
+                  <span className="font-mono tabular-nums font-medium text-ink">
                     {formatCurrency(summary.totalExpenses)}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B675E]">Remaining budget</span>
+                  <span className="text-ink-muted">Remaining budget</span>
                   <span
                     className={`font-mono tabular-nums font-medium ${
-                      summary.remainingBudget < 0 ? 'text-[#B83B3B]' : 'text-[#2A6F4E]'
+                      summary.remainingBudget < 0 ? 'text-danger-accent' : 'text-success-accent'
                     }`}
                   >
                     {formatCurrency(summary.remainingBudget)}
@@ -312,11 +312,11 @@ export default function ReflectionsPage() {
               </div>
 
               <div>
-                <h4 className="text-xs font-semibold text-[#1C1B18] mb-2">
+                <h4 className="text-xs font-semibold text-ink mb-2">
                   Categories exceeding budget
                 </h4>
                 {summary.overBudgetCategories.length === 0 ? (
-                  <p className="inline-flex items-center gap-1.5 text-xs text-[#2A6F4E]">
+                  <p className="inline-flex items-center gap-1.5 text-xs text-success-accent">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     All categories stayed within their allocated limits.
                   </p>
@@ -325,7 +325,7 @@ export default function ReflectionsPage() {
                     {summary.overBudgetCategories.map((cat) => (
                       <li
                         key={cat.categoryId}
-                        className="flex items-center justify-between text-xs text-[#B83B3B]"
+                        className="flex items-center justify-between text-xs text-danger-accent"
                       >
                         <span className="inline-flex items-center gap-1.5 font-medium">
                           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
@@ -340,12 +340,12 @@ export default function ReflectionsPage() {
                 )}
               </div>
 
-              <div className="pt-2 border-t border-[#E5E2DC]">
-                <h4 className="text-xs font-semibold text-[#1C1B18] mb-2.5">
+              <div className="pt-2 border-t border-line">
+                <h4 className="text-xs font-semibold text-ink mb-2.5">
                   Expense breakdown by category
                 </h4>
                 {summary.categoryBreakdown.length === 0 ? (
-                  <p className="text-xs text-[#6B675E]">No expenses recorded for this month.</p>
+                  <p className="text-xs text-ink-muted">No expenses recorded for this month.</p>
                 ) : (
                   <div className="space-y-2">
                     {summary.categoryBreakdown.map((cat) => (
@@ -353,10 +353,10 @@ export default function ReflectionsPage() {
                         key={cat.categoryId}
                         className="flex items-center justify-between text-xs"
                       >
-                        <span className="text-[#4A4740]">{cat.categoryName}</span>
-                        <span className="font-mono tabular-nums text-[#1C1B18]">
+                        <span className="text-ink-secondary">{cat.categoryName}</span>
+                        <span className="font-mono tabular-nums text-ink">
                           {formatCurrency(cat.actualSpent)}{' '}
-                          <span className="text-[#6B675E]">
+                          <span className="text-ink-muted">
                             / {formatCurrency(cat.allocatedAmount)}
                           </span>
                         </span>
@@ -378,15 +378,15 @@ export default function ReflectionsPage() {
       )}
 
       {!loading && pastReflections.length > 0 && (
-        <section className="bg-white border border-[#E5E2DC] rounded-xl p-6 space-y-4">
+        <section className="bg-surface border border-line rounded-xl p-6 space-y-4">
           <div>
-            <h3 className="text-sm font-semibold text-[#1C1B18]">Past Reflections</h3>
-            <p className="text-xs text-[#6B675E] mt-0.5">
+            <h3 className="text-sm font-semibold text-ink">Past Reflections</h3>
+            <p className="text-xs text-ink-muted mt-0.5">
               Revisit reflections from earlier months
             </p>
           </div>
 
-          <div className="divide-y divide-[#E5E2DC]">
+          <div className="divide-y divide-line">
             {pastReflections.map((r) => (
               <div key={r.id} className="py-4 first:pt-0 last:pb-0 space-y-2">
                 <div className="flex items-center justify-between gap-4">
@@ -401,18 +401,18 @@ export default function ReflectionsPage() {
                           })
                         )
                       }
-                      className="text-sm font-semibold text-[#355482] hover:underline"
+                      className="text-sm font-semibold text-accent-text hover:underline"
                     >
                       {formatMonthYear(r.monthlyPlan.month, r.monthlyPlan.year)}
                     </button>
                   ) : (
-                    <span className="text-sm font-semibold text-[#1C1B18]">Monthly reflection</span>
+                    <span className="text-sm font-semibold text-ink">Monthly reflection</span>
                   )}
-                  <span className="text-xs text-[#6B675E] font-mono tabular-nums">
+                  <span className="text-xs text-ink-muted font-mono tabular-nums">
                     {formatDateTimeDisplay(r.updatedAt)}
                   </span>
                 </div>
-                <p className="text-sm text-[#3A3832] whitespace-pre-wrap leading-relaxed line-clamp-4">
+                <p className="text-sm text-ink-secondary whitespace-pre-wrap leading-relaxed line-clamp-4">
                   {r.content}
                 </p>
               </div>

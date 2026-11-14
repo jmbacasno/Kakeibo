@@ -135,25 +135,25 @@ export default function NotesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl font-semibold text-[#1C1B18]">
+          <h2 className="font-serif text-2xl font-semibold text-ink">
             {scope === 'month'
               ? `${formatMonthYear(selectedMonth, selectedYear)} Notes`
               : 'All Personal Notes'}
           </h2>
-          <p className="text-xs text-[#6B675E] mt-1">
+          <p className="text-xs text-ink-muted mt-1">
             Informal financial thoughts, upcoming expenses, purchase considerations, and reminders
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex p-1 bg-[#EAE7E0] rounded-lg">
+          <div className="inline-flex p-1 bg-subtle-strong rounded-lg">
             <button
               type="button"
               onClick={() => setScope('month')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 scope === 'month'
-                  ? 'bg-white text-[#1C1B18] shadow-xs'
-                  : 'text-[#6B675E] hover:text-[#1C1B18]'
+                  ? 'bg-surface text-ink shadow-xs'
+                  : 'text-ink-muted hover:text-ink'
               }`}
             >
               Selected month
@@ -163,8 +163,8 @@ export default function NotesPage() {
               onClick={() => setScope('all')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 scope === 'all'
-                  ? 'bg-white text-[#1C1B18] shadow-xs'
-                  : 'text-[#6B675E] hover:text-[#1C1B18]'
+                  ? 'bg-surface text-ink shadow-xs'
+                  : 'text-ink-muted hover:text-ink'
               }`}
             >
               All months
@@ -175,7 +175,7 @@ export default function NotesPage() {
             aria-label="Sort notes order"
             value={order}
             onChange={(e) => setOrder(e.target.value as 'asc' | 'desc')}
-            className="px-3 py-2 text-xs font-medium bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482]"
+            className="px-3 py-2 text-xs font-medium bg-surface border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text"
           >
             <option value="asc">Oldest first</option>
             <option value="desc">Newest first</option>
@@ -185,7 +185,7 @@ export default function NotesPage() {
             <button
               type="button"
               onClick={openCreate}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#355482] hover:bg-[#29436A] text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               <span>Write note</span>
@@ -202,7 +202,7 @@ export default function NotesPage() {
           action={
             <Link
               to="/plan"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#355482] hover:bg-[#29436A] text-white text-sm font-medium rounded-lg"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg"
             >
               Create monthly plan
             </Link>
@@ -220,7 +220,7 @@ export default function NotesPage() {
               <button
                 type="button"
                 onClick={openCreate}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#355482] hover:bg-[#29436A] text-white text-sm font-medium rounded-lg"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg"
               >
                 <Plus className="w-4 h-4" />
                 <span>Write first note</span>
@@ -233,23 +233,23 @@ export default function NotesPage() {
           {notes.map((note) => (
             <article
               key={note.id}
-              className="bg-white border border-[#E5E2DC] rounded-xl p-5 flex flex-col justify-between gap-4"
+              className="bg-surface border border-line rounded-xl p-5 flex flex-col justify-between gap-4"
             >
               <div>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     {note.title ? (
-                      <h3 className="text-base font-semibold text-[#1C1B18] leading-snug">
+                      <h3 className="text-base font-semibold text-ink leading-snug">
                         {note.title}
                       </h3>
                     ) : (
-                      <p className="text-xs font-medium text-[#6B675E]">
+                      <p className="text-xs font-medium text-ink-muted">
                         {note.monthlyPlan
                           ? formatMonthYear(note.monthlyPlan.month, note.monthlyPlan.year)
                           : 'Journal note'}
                       </p>
                     )}
-                    <p className="text-xs text-[#6B675E] mt-0.5 font-mono tabular-nums">
+                    <p className="text-xs text-ink-muted mt-0.5 font-mono tabular-nums">
                       {note.monthlyPlan
                         ? `${formatMonthYear(note.monthlyPlan.month, note.monthlyPlan.year)} · `
                         : ''}
@@ -262,7 +262,7 @@ export default function NotesPage() {
                       type="button"
                       onClick={() => openEdit(note)}
                       aria-label="Edit note"
-                      className="p-1.5 rounded-lg text-[#6B675E] hover:text-[#1C1B18] hover:bg-[#F1EFEA] transition-colors"
+                      className="p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-subtle transition-colors"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -270,14 +270,14 @@ export default function NotesPage() {
                       type="button"
                       onClick={() => setDeletingNote(note)}
                       aria-label="Delete note"
-                      className="p-1.5 rounded-lg text-[#6B675E] hover:text-[#B83B3B] hover:bg-[#FDF6F6] transition-colors"
+                      className="p-1.5 rounded-lg text-ink-muted hover:text-danger-accent hover:bg-danger-bg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                <p className="mt-3 text-sm text-[#3A3832] whitespace-pre-wrap leading-relaxed">
+                <p className="mt-3 text-sm text-ink-secondary whitespace-pre-wrap leading-relaxed">
                   {note.content}
                 </p>
               </div>
@@ -300,13 +300,13 @@ export default function NotesPage() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {formError && (
-            <div className="rounded-lg bg-[#FDF6F6] border border-[#E8C5C5] px-3.5 py-2.5 text-sm text-[#8F2A2A]">
+            <div className="rounded-lg bg-danger-bg border border-danger-line px-3.5 py-2.5 text-sm text-danger">
               {formError}
             </div>
           )}
 
           <div>
-            <label htmlFor="note-title" className="block text-xs font-medium text-[#4A4740] mb-1.5">
+            <label htmlFor="note-title" className="block text-xs font-medium text-ink-secondary mb-1.5">
               Title (optional)
             </label>
             <input
@@ -316,12 +316,12 @@ export default function NotesPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Autumn travel consideration"
-              className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] focus:outline-none focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
             />
           </div>
 
           <div>
-            <label htmlFor="note-content" className="block text-xs font-medium text-[#4A4740] mb-1.5">
+            <label htmlFor="note-content" className="block text-xs font-medium text-ink-secondary mb-1.5">
               Note
             </label>
             <textarea
@@ -331,22 +331,22 @@ export default function NotesPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write freely about upcoming costs, reminders, or spending thoughts..."
-              className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#D8D4CC] rounded-lg text-[#1C1B18] leading-relaxed focus:outline-none focus:border-[#355482] focus:ring-2 focus:ring-[#355482]/15"
+              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder leading-relaxed focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-2 border-t border-[#E5E2DC]">
+          <div className="flex justify-end gap-3 pt-2 border-t border-line">
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-[#4A4740] bg-white border border-[#D8D4CC] rounded-lg hover:bg-[#F1EFEA]"
+              className="px-4 py-2 text-sm font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#355482] hover:bg-[#29436A] rounded-lg disabled:opacity-60"
+              className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg disabled:opacity-60"
             >
               {saving ? 'Saving...' : editingNote ? 'Save changes' : 'Save note'}
             </button>

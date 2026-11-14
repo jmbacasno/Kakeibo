@@ -1,5 +1,6 @@
 import { Category } from "../../domain/entities/category/index.js";
 import { User } from "../../domain/entities/user/index.js";
+import { DEFAULT_USER_SETTINGS, UserSettings } from "../../domain/entities/userSettings/index.js";
 import { UnitOfWorkInterface } from "../../domain/repositories/unitOfWorkInterface.js";
 import { PasswordHasherInterface } from "../../domain/services/passwordHasherInterface.js";
 import { TokenServiceInterface } from "../../domain/services/tokenServiceInterface.js";
@@ -51,6 +52,19 @@ export class AuthService {
       });
 
       const savedUser = await txUow.users.create(userEntity);
+
+      const defaultSettings = new UserSettings({
+        id: null,
+        userId: savedUser.id!,
+        currency: DEFAULT_USER_SETTINGS.currency,
+        language: DEFAULT_USER_SETTINGS.language,
+        theme: DEFAULT_USER_SETTINGS.theme,
+        dateFormat: DEFAULT_USER_SETTINGS.dateFormat,
+        firstDayOfWeek: DEFAULT_USER_SETTINGS.firstDayOfWeek,
+        createdAt: now,
+        updatedAt: now,
+      });
+      await txUow.userSettings.create(defaultSettings);
 
       for (const template of DEFAULT_KAKEIBO_CATEGORIES) {
         const categoryEntity = new Category({

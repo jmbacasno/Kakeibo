@@ -1,14 +1,15 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import api, { getErrorMessage } from '../../services/api';
-import { ApiSuccessResponse, Note } from '../../types/models';
+import { getErrorMessage } from '../../services/api';
+import { Note } from '../../types/models';
 import { forceLogout, logoutUser } from '../auth/authSlice';
+import {
+  CreateNotePayload,
+  FetchNotesParams,
+  noteService,
+  UpdateNotePayload,
+} from './noteService';
 
-export interface FetchNotesParams {
-  planId?: number;
-  month?: number;
-  year?: number;
-  order?: 'asc' | 'desc';
-}
+export type { CreateNotePayload, FetchNotesParams, UpdateNotePayload };
 
 export const fetchNotes = createAsyncThunk<
   Note[],
@@ -16,45 +17,39 @@ export const fetchNotes = createAsyncThunk<
   { rejectValue: string }
 >('notes/fetchAll', async (params = {}, { rejectWithValue }) => {
   try {
-    const res = await api.get<ApiSuccessResponse<{ notes: Note[] }>>('/notes', { params });
-    return res.data.data.notes;
+    return await noteService.fetchAll(params);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
 });
 
-export const createNote = createAsyncThunk<
-  Note,
-  { monthlyPlanId: number; title?: string | null; content: string },
-  { rejectValue: string }
->('notes/create', async (payload, { rejectWithValue }) => {
-  try {
-    const res = await api.post<ApiSuccessResponse<{ note: Note }>>('/notes', payload);
-    return res.data.data.note;
-  } catch (err) {
-    return rejectWithValue(getErrorMessage(err));
+export const createNote = createAsyncThunk<Note, CreateNotePayload, { rejectValue: string }>(
+  'notes/create',
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await noteService.create(payload);
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
   }
-});
+);
 
-export const updateNote = createAsyncThunk<
-  Note,
-  { id: number; data: { title?: string | null; content: string } },
-  { rejectValue: string }
->('notes/update', async ({ id, data }, { rejectWithValue }) => {
-  try {
-    const res = await api.put<ApiSuccessResponse<{ note: Note }>>(`/notes/${id}`, data);
-    return res.data.data.note;
-  } catch (err) {
-    return rejectWithValue(getErrorMessage(err));
+export const updateNote = createAsyncThunk<Note, UpdateNotePayload, { rejectValue: string }>(
+  'notes/update',
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await noteService.update(payload);
+    } catch (err) {
+      return rejectWithValue(getErrorMessage(err));
+    }
   }
-});
+);
 
 export const deleteNote = createAsyncThunk<number, number, { rejectValue: string }>(
   'notes/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/notes/${id}`);
-      return id;
+      return await noteService.remove(id);
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }

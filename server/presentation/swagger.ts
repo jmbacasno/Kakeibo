@@ -190,6 +190,26 @@ const openApiSchema = {
         responses: { 201: { description: "Created reflection" } },
       },
     },
+    "/settings": {
+      get: {
+        summary: "Get personal application preferences for the authenticated user",
+        tags: ["Settings"],
+        security: [{ BearerAuth: [] }, { CookieAuth: [] }],
+        responses: { 200: { description: "UserSettings object" } },
+      },
+      put: {
+        summary: "Update personal application preferences for the authenticated user",
+        tags: ["Settings"],
+        security: [{ BearerAuth: [] }, { CookieAuth: [] }],
+        responses: { 200: { description: "Updated UserSettings object" } },
+      },
+      patch: {
+        summary: "Partially update personal application preferences",
+        tags: ["Settings"],
+        security: [{ BearerAuth: [] }, { CookieAuth: [] }],
+        responses: { 200: { description: "Updated UserSettings object" } },
+      },
+    },
   },
 };
 

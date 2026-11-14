@@ -5,9 +5,11 @@ import { MonthlyReflectionRepositoryInterface } from "./monthlyReflectionReposit
 import { NoteRepositoryInterface } from "./noteRepositoryInterface.js";
 import { TransactionRepositoryInterface } from "./transactionRepositoryInterface.js";
 import { UserRepositoryInterface } from "./userRepositoryInterface.js";
+import { UserSettingsRepositoryInterface } from "./userSettingsRepositoryInterface.js";
 
 export interface UnitOfWorkInterface {
   users: UserRepositoryInterface;
+  userSettings: UserSettingsRepositoryInterface;
   categories: CategoryRepositoryInterface;
   monthlyPlans: MonthlyPlanRepositoryInterface;
   categoryBudgets: CategoryBudgetRepositoryInterface;

@@ -11,6 +11,7 @@ import dashboardRoutes from "./presentation/api/v1/dashboard.js";
 import noteRoutes from "./presentation/api/v1/notes.js";
 import planRoutes from "./presentation/api/v1/plans.js";
 import reflectionRoutes from "./presentation/api/v1/reflections.js";
+import settingsRoutes from "./presentation/api/v1/settings.js";
 import transactionRoutes from "./presentation/api/v1/transactions.js";
 import { logger } from "./presentation/dependencies.js";
 import { parseUserSession } from "./presentation/middlewares/auth.js";
@@ -50,6 +51,7 @@ export function createApp() {
   app.use("/api/v1/notes", noteRoutes);
   app.use("/api/v1/monthly-reflections", reflectionRoutes);
   app.use("/api/v1/dashboard", dashboardRoutes);
+  app.use("/api/v1/settings", settingsRoutes);
 
   setupSwagger(app);
 

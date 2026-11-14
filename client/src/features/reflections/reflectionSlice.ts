@@ -1,13 +1,19 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import api, { getErrorMessage } from '../../services/api';
-import { ApiSuccessResponse, MonthlyReflection } from '../../types/models';
+import { getErrorMessage } from '../../services/api';
+import { MonthlyReflection } from '../../types/models';
 import { forceLogout, logoutUser } from '../auth/authSlice';
+import {
+  CreateReflectionPayload,
+  FetchReflectionsParams,
+  reflectionService,
+  UpdateReflectionPayload,
+} from './reflectionService';
 
-export interface FetchReflectionsParams {
-  planId?: number;
-  month?: number;
-  year?: number;
-}
+export type {
+  CreateReflectionPayload,
+  FetchReflectionsParams,
+  UpdateReflectionPayload,
+};
 
 export const fetchReflections = createAsyncThunk<
   MonthlyReflection[],
@@ -15,11 +21,7 @@ export const fetchReflections = createAsyncThunk<
   { rejectValue: string }
 >('reflections/fetchAll', async (params = {}, { rejectWithValue }) => {
   try {
-    const res = await api.get<ApiSuccessResponse<{ reflections: MonthlyReflection[] }>>(
-      '/monthly-reflections',
-      { params }
-    );
-    return res.data.data.reflections;
+    return await reflectionService.fetchAll(params);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -27,15 +29,11 @@ export const fetchReflections = createAsyncThunk<
 
 export const createReflection = createAsyncThunk<
   MonthlyReflection,
-  { monthlyPlanId: number; content: string },
+  CreateReflectionPayload,
   { rejectValue: string }
 >('reflections/create', async (payload, { rejectWithValue }) => {
   try {
-    const res = await api.post<ApiSuccessResponse<{ reflection: MonthlyReflection }>>(
-      '/monthly-reflections',
-      payload
-    );
-    return res.data.data.reflection;
+    return await reflectionService.create(payload);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -43,15 +41,11 @@ export const createReflection = createAsyncThunk<
 
 export const updateReflection = createAsyncThunk<
   MonthlyReflection,
-  { id: number; content: string },
+  UpdateReflectionPayload,
   { rejectValue: string }
->('reflections/update', async ({ id, content }, { rejectWithValue }) => {
+>('reflections/update', async (payload, { rejectWithValue }) => {
   try {
-    const res = await api.put<ApiSuccessResponse<{ reflection: MonthlyReflection }>>(
-      `/monthly-reflections/${id}`,
-      { content }
-    );
-    return res.data.data.reflection;
+    return await reflectionService.update(payload);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -61,8 +55,7 @@ export const deleteReflection = createAsyncThunk<number, number, { rejectValue: 
   'reflections/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/monthly-reflections/${id}`);
-      return id;
+      return await reflectionService.remove(id);
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }

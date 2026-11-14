@@ -1,23 +1,171 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-@theme {
+:root,
+[data-theme="paper"] {
+  color-scheme: light;
+  --bg-canvas: #f8f7f4;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #faf9f6;
+  --bg-subtle: #f1efea;
+  --bg-subtle-strong: #eae7e0;
+  --text-primary: #1c1b18;
+  --text-secondary: #4a4740;
+  --text-muted: #6b675e;
+  --text-placeholder: #9e998e;
+  --border-default: #e5e2dc;
+  --border-strong: #d8d4cc;
+  --accent-primary: #355482;
+  --accent-hover: #29436a;
+  --accent-text: #355482;
+  --accent-soft: #eef2f7;
+  --accent-soft-hover: #e1e8f2;
+  --accent-border: #cad5e6;
+  --success-text: #1f543b;
+  --success-accent: #2a6f4e;
+  --success-bg: #f4faf6;
+  --success-border: #c2dfce;
+  --warning-text: #8a510a;
+  --warning-accent: #b4690e;
+  --warning-bg: #fef9ee;
+  --warning-border: #ead4a3;
+  --danger-text: #8f2a2a;
+  --danger-accent: #b83b3b;
+  --danger-hover: #9c2f2f;
+  --danger-bg: #fdf6f6;
+  --danger-border: #e8c5c5;
+  --chart-planned: #cbd5e1;
+  --chart-planned-bar: #94a3b8;
+  --overlay-scrim: rgba(28, 27, 24, 0.42);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-canvas: #f4f5f7;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #f9fafb;
+  --bg-subtle: #eef0f4;
+  --bg-subtle-strong: #e2e6ec;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-placeholder: #94a3b8;
+  --border-default: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --accent-primary: #2b4c7e;
+  --accent-hover: #1f3a63;
+  --accent-text: #2b4c7e;
+  --accent-soft: #eff4fb;
+  --accent-soft-hover: #e1eaf7;
+  --accent-border: #c7d6ec;
+  --success-text: #166534;
+  --success-accent: #15803d;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --warning-text: #92400e;
+  --warning-accent: #b45309;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+  --danger-text: #991b1b;
+  --danger-accent: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --chart-planned: #cbd5e1;
+  --chart-planned-bar: #94a3b8;
+  --overlay-scrim: rgba(15, 23, 42, 0.45);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-canvas: #0f1216;
+  --bg-surface: #171b21;
+  --bg-surface-muted: #1d222a;
+  --bg-subtle: #232933;
+  --bg-subtle-strong: #2c3340;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-placeholder: #64748b;
+  --border-default: #282f3a;
+  --border-strong: #374151;
+  --accent-primary: #3b69ad;
+  --accent-hover: #4978bd;
+  --accent-text: #84adeb;
+  --accent-soft: #1e2c42;
+  --accent-soft-hover: #263752;
+  --accent-border: #334a6e;
+  --success-text: #6ee7b7;
+  --success-accent: #34d399;
+  --success-bg: #132a22;
+  --success-border: #204a3b;
+  --warning-text: #fcd34d;
+  --warning-accent: #f59e0b;
+  --warning-bg: #2c2312;
+  --warning-border: #57411b;
+  --danger-text: #fca5a5;
+  --danger-accent: #f87171;
+  --danger-hover: #ef4444;
+  --danger-bg: #2c1619;
+  --danger-border: #59252b;
+  --chart-planned: #475569;
+  --chart-planned-bar: #64748b;
+  --overlay-scrim: rgba(0, 0, 0, 0.65);
+}
+
+@theme inline {
   --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-serif: "Source Serif 4", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-muted: var(--bg-surface-muted);
+  --color-subtle: var(--bg-subtle);
+  --color-subtle-strong: var(--bg-subtle-strong);
+  --color-ink: var(--text-primary);
+  --color-ink-secondary: var(--text-secondary);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-placeholder: var(--text-placeholder);
+  --color-line: var(--border-default);
+  --color-line-strong: var(--border-strong);
+
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-text: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-hover: var(--accent-soft-hover);
+  --color-accent-line: var(--accent-border);
+
+  --color-success: var(--success-text);
+  --color-success-accent: var(--success-accent);
+  --color-success-bg: var(--success-bg);
+  --color-success-line: var(--success-border);
+
+  --color-warning: var(--warning-text);
+  --color-warning-accent: var(--warning-accent);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-line: var(--warning-border);
+
+  --color-danger: var(--danger-text);
+  --color-danger-accent: var(--danger-accent);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-line: var(--danger-border);
+
+  --color-chart-planned: var(--chart-planned);
+  --color-scrim: var(--overlay-scrim);
 }
 
 @layer base {
-  html {
-    font-family: var(--font-sans);
-    background-color: #F8F7F4;
-    color: #1C1B18;
-  }
-
+  html,
   body {
     margin: 0;
     min-height: 100vh;
-    background-color: #F8F7F4;
-    color: #1C1B18;
+    font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    transition: background-color 150ms ease, color 150ms ease;
   }
 
   .tabular-nums {

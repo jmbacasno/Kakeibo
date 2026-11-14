@@ -6,6 +6,7 @@ import { MonthlyPlanService } from "../application/services/monthlyPlanService.j
 import { MonthlyReflectionService } from "../application/services/monthlyReflectionService.js";
 import { NoteService } from "../application/services/noteService.js";
 import { TransactionService } from "../application/services/transactionService.js";
+import { UserSettingsService } from "../application/services/userSettingsService.js";
 import { settings } from "../infrastructure/config.js";
 import { Logger } from "../infrastructure/logging/logger.js";
 import { UnitOfWork } from "../infrastructure/repositories/unitOfWork.js";
@@ -29,3 +30,4 @@ export const transactionApplicationService = new TransactionService(unitOfWork);
 export const noteApplicationService = new NoteService(unitOfWork);
 export const monthlyReflectionApplicationService = new MonthlyReflectionService(unitOfWork);
 export const dashboardApplicationService = new DashboardService(unitOfWork);
+export const userSettingsApplicationService = new UserSettingsService(unitOfWork);

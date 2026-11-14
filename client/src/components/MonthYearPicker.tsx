@@ -33,12 +33,12 @@ export default function MonthYearPicker({ month, year, onChange }: MonthYearPick
   years.sort((a, b) => a - b);
 
   return (
-    <div className="inline-flex items-center bg-white border border-[#D8D4CC] rounded-lg overflow-hidden">
+    <div className="inline-flex items-center bg-surface border border-line-strong rounded-lg overflow-hidden">
       <button
         type="button"
         onClick={handlePrev}
         aria-label="Previous month"
-        className="px-2.5 py-2 text-[#4A4740] hover:bg-[#F1EFEA] hover:text-[#1C1B18] transition-colors border-r border-[#E5E2DC] focus-visible:outline-2 focus-visible:outline-[#355482]"
+        className="px-2.5 py-2 text-ink-secondary hover:bg-subtle hover:text-ink transition-colors border-r border-line focus-visible:outline-2 focus-visible:outline-accent-text"
       >
         <ChevronLeft className="w-4 h-4" />
       </button>
@@ -51,10 +51,10 @@ export default function MonthYearPicker({ month, year, onChange }: MonthYearPick
           id="period-month"
           value={month}
           onChange={(e) => onChange({ month: Number(e.target.value), year })}
-          className="bg-transparent py-1.5 pl-1 pr-1 text-sm font-medium text-[#1C1B18] focus:outline-none cursor-pointer"
+          className="bg-surface py-1.5 pl-1 pr-1 text-sm font-medium text-ink focus:outline-none cursor-pointer"
         >
           {MONTH_NAMES.map((name, idx) => (
-            <option key={name} value={idx + 1}>
+            <option key={name} value={idx + 1} className="bg-surface text-ink">
               {name}
             </option>
           ))}
@@ -67,10 +67,10 @@ export default function MonthYearPicker({ month, year, onChange }: MonthYearPick
           id="period-year"
           value={year}
           onChange={(e) => onChange({ month, year: Number(e.target.value) })}
-          className="bg-transparent py-1.5 px-1 text-sm font-mono tabular-nums font-medium text-[#1C1B18] focus:outline-none cursor-pointer"
+          className="bg-surface py-1.5 px-1 text-sm font-mono tabular-nums font-medium text-ink focus:outline-none cursor-pointer"
         >
           {years.map((y) => (
-            <option key={y} value={y}>
+            <option key={y} value={y} className="bg-surface text-ink">
               {y}
             </option>
           ))}
@@ -81,7 +81,7 @@ export default function MonthYearPicker({ month, year, onChange }: MonthYearPick
         type="button"
         onClick={handleNext}
         aria-label="Next month"
-        className="px-2.5 py-2 text-[#4A4740] hover:bg-[#F1EFEA] hover:text-[#1C1B18] transition-colors border-l border-[#E5E2DC] focus-visible:outline-2 focus-visible:outline-[#355482]"
+        className="px-2.5 py-2 text-ink-secondary hover:bg-subtle hover:text-ink transition-colors border-l border-line focus-visible:outline-2 focus-visible:outline-accent-text"
       >
         <ChevronRight className="w-4 h-4" />
       </button>

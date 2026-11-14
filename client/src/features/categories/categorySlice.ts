@@ -1,12 +1,21 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import api, { getErrorMessage } from '../../services/api';
-import { ApiSuccessResponse, Category, CategoryType } from '../../types/models';
+import { getErrorMessage } from '../../services/api';
+import { Category } from '../../types/models';
 import { forceLogout, logoutUser } from '../auth/authSlice';
+import {
+  categoryService,
+  CreateCategoryPayload,
+  FetchCategoriesParams,
+  ToggleCategoryStatusPayload,
+  UpdateCategoryPayload,
+} from './categoryService';
 
-export interface FetchCategoriesParams {
-  type?: CategoryType;
-  isActive?: boolean;
-}
+export type {
+  CreateCategoryPayload,
+  FetchCategoriesParams,
+  ToggleCategoryStatusPayload,
+  UpdateCategoryPayload,
+};
 
 export const fetchCategories = createAsyncThunk<
   Category[],
@@ -14,10 +23,7 @@ export const fetchCategories = createAsyncThunk<
   { rejectValue: string }
 >('categories/fetchAll', async (params = {}, { rejectWithValue }) => {
   try {
-    const res = await api.get<ApiSuccessResponse<{ categories: Category[] }>>('/categories', {
-      params,
-    });
-    return res.data.data.categories;
+    return await categoryService.fetchAll(params);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -25,12 +31,11 @@ export const fetchCategories = createAsyncThunk<
 
 export const createCategory = createAsyncThunk<
   Category,
-  { name: string; type: CategoryType },
+  CreateCategoryPayload,
   { rejectValue: string }
 >('categories/create', async (payload, { rejectWithValue }) => {
   try {
-    const res = await api.post<ApiSuccessResponse<{ category: Category }>>('/categories', payload);
-    return res.data.data.category;
+    return await categoryService.create(payload);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -38,14 +43,11 @@ export const createCategory = createAsyncThunk<
 
 export const updateCategory = createAsyncThunk<
   Category,
-  { id: number; name: string },
+  UpdateCategoryPayload,
   { rejectValue: string }
->('categories/update', async ({ id, name }, { rejectWithValue }) => {
+>('categories/update', async (payload, { rejectWithValue }) => {
   try {
-    const res = await api.put<ApiSuccessResponse<{ category: Category }>>(`/categories/${id}`, {
-      name,
-    });
-    return res.data.data.category;
+    return await categoryService.update(payload);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -53,15 +55,11 @@ export const updateCategory = createAsyncThunk<
 
 export const toggleCategoryStatus = createAsyncThunk<
   Category,
-  { id: number; isActive: boolean },
+  ToggleCategoryStatusPayload,
   { rejectValue: string }
->('categories/toggleStatus', async ({ id, isActive }, { rejectWithValue }) => {
+>('categories/toggleStatus', async (payload, { rejectWithValue }) => {
   try {
-    const res = await api.patch<ApiSuccessResponse<{ category: Category }>>(
-      `/categories/${id}/status`,
-      { isActive }
-    );
-    return res.data.data.category;
+    return await categoryService.toggleStatus(payload);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -71,8 +69,7 @@ export const deleteCategory = createAsyncThunk<number, number, { rejectValue: st
   'categories/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/categories/${id}`);
-      return id;
+      return await categoryService.remove(id);
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }

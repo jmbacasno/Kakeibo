@@ -7,21 +7,13 @@ import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { settings } from "./infrastructure/config.js";
 import { prisma } from "./infrastructure/database/prisma/client.js";
-import authRoutes from "./presentation/api/v1/auth.js";
-import categoryRoutes from "./presentation/api/v1/categories.js";
-import dashboardRoutes from "./presentation/api/v1/dashboard.js";
-import noteRoutes from "./presentation/api/v1/notes.js";
-import planRoutes from "./presentation/api/v1/plans.js";
-import reflectionRoutes from "./presentation/api/v1/reflections.js";
-import settingsRoutes from "./presentation/api/v1/settings.js";
-import transactionRoutes from "./presentation/api/v1/transactions.js";
 import { logger } from "./presentation/dependencies.js";
 import { parseUserSession } from "./presentation/middlewares/auth.js";
 import { corsMiddleware } from "./presentation/middlewares/cors.js";
 import { globalErrorHandler } from "./presentation/middlewares/errors.js";
 import { accessLoggerMiddleware, traceIdMiddleware } from "./presentation/middlewares/observability.js";
 import { securityHeadersMiddleware } from "./presentation/middlewares/security.js";
-import { setupSwagger } from "./presentation/swagger.js";
+import { registerRoutes } from "./presentation/routes.js";
 
 export function createApp() {
   const app = express();
@@ -35,36 +27,7 @@ export function createApp() {
   app.use(cookieParser());
   app.use(parseUserSession);
 
-  app.get("/api/v1/health", (_req, res) => {
-    res.json({
-      success: true,
-      data: {
-        status: "ok",
-        service: "kakeibo-api",
-        timestamp: new Date().toISOString(),
-      },
-    });
-  });
-
-  app.use("/api/v1/auth", authRoutes);
-  app.use("/api/v1/categories", categoryRoutes);
-  app.use("/api/v1/plans", planRoutes);
-  app.use("/api/v1/transactions", transactionRoutes);
-  app.use("/api/v1/notes", noteRoutes);
-  app.use("/api/v1/monthly-reflections", reflectionRoutes);
-  app.use("/api/v1/dashboard", dashboardRoutes);
-  app.use("/api/v1/settings", settingsRoutes);
-
-  setupSwagger(app);
-
-  app.use("/api", (_req, res) => {
-    res.status(404).json({
-      success: false,
-      code: "NOT_FOUND",
-      message: "API endpoint not found.",
-      error: "API endpoint not found.",
-    });
-  });
+  registerRoutes(app);
 
   app.use(globalErrorHandler);
 

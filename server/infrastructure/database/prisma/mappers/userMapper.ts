@@ -1,7 +1,7 @@
 import { User as PrismaUser } from "@prisma/client";
-import { User } from "../../../domain/entities/user/index.js";
+import { User } from "../../../../domain/entities/user/index.js";
 
-export class UserModel {
+export class UserMapper {
   static toEntity(raw: PrismaUser): User {
     return new User({
       id: raw.id,

@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { CategoryBudgetEntity } from "../../domain/entities/categoryBudget/index.js";
-import { CategoryBudgetRepositoryInterface } from "../../domain/repositories/categoryBudgetRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { CategoryBudgetModel } from "../persistence/models/categoryBudgetModel.js";
+import { CategoryBudgetEntity } from "../../../../domain/entities/categoryBudget/index.js";
+import { CategoryBudgetRepositoryInterface } from "../../../../domain/repositories/categoryBudgetRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { CategoryBudgetMapper } from "../mappers/categoryBudgetMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -33,6 +33,6 @@ export class CategoryBudgetRepository implements CategoryBudgetRepositoryInterfa
         category: true,
       },
     });
-    return CategoryBudgetModel.toEntity(saved);
+    return CategoryBudgetMapper.toEntity(saved);
   }
 }

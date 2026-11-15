@@ -9,7 +9,7 @@ import { TransactionService } from "../application/services/transactionService.j
 import { UserSettingsService } from "../application/services/userSettingsService.js";
 import { settings } from "../infrastructure/config.js";
 import { Logger } from "../infrastructure/logging/logger.js";
-import { UnitOfWork } from "../infrastructure/repositories/unitOfWork.js";
+import { UnitOfWork } from "../infrastructure/database/prisma/unitOfWork.js";
 import { PasswordHasher } from "../infrastructure/security/passwordHasher.js";
 import { TokenService } from "../infrastructure/security/tokenService.js";
 

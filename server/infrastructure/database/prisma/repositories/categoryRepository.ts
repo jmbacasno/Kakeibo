@@ -1,11 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { CategoryEntity, CategoryType } from "../../domain/entities/category/index.js";
+import { CategoryEntity, CategoryType } from "../../../../domain/entities/category/index.js";
 import {
   CategoryFilterParams,
   CategoryRepositoryInterface,
-} from "../../domain/repositories/categoryRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { CategoryModel } from "../persistence/models/categoryModel.js";
+} from "../../../../domain/repositories/categoryRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { CategoryMapper } from "../mappers/categoryMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -34,7 +34,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       include: categoryCountInclude,
       orderBy: [{ type: "asc" }, { isDefault: "desc" }, { name: "asc" }],
     });
-    return rows.map(CategoryModel.toEntity);
+    return rows.map(CategoryMapper.toEntity);
   }
 
   async findByIdAndUserId(id: number, userId: number): Promise<CategoryEntity | null> {
@@ -42,7 +42,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       where: { id, userId },
       include: categoryCountInclude,
     });
-    return row ? CategoryModel.toEntity(row) : null;
+    return row ? CategoryMapper.toEntity(row) : null;
   }
 
   async findManyByIdsAndUserId(ids: number[], userId: number): Promise<CategoryEntity[]> {
@@ -54,7 +54,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       },
       include: categoryCountInclude,
     });
-    return rows.map(CategoryModel.toEntity);
+    return rows.map(CategoryMapper.toEntity);
   }
 
   async findByNameTypeAndUserId(
@@ -73,7 +73,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       include: categoryCountInclude,
     });
     const match = candidates.find((c) => c.name.trim().toLowerCase() === normalized);
-    return match ? CategoryModel.toEntity(match) : null;
+    return match ? CategoryMapper.toEntity(match) : null;
   }
 
   async create(category: CategoryEntity): Promise<CategoryEntity> {
@@ -87,7 +87,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       },
       include: categoryCountInclude,
     });
-    return CategoryModel.toEntity(created);
+    return CategoryMapper.toEntity(created);
   }
 
   async upsertDefault(category: CategoryEntity): Promise<CategoryEntity> {
@@ -109,7 +109,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       },
       include: categoryCountInclude,
     });
-    return CategoryModel.toEntity(saved);
+    return CategoryMapper.toEntity(saved);
   }
 
   async updateName(id: number, name: string): Promise<CategoryEntity> {
@@ -118,7 +118,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       data: { name: name.trim() },
       include: categoryCountInclude,
     });
-    return CategoryModel.toEntity(updated);
+    return CategoryMapper.toEntity(updated);
   }
 
   async updateStatus(id: number, isActive: boolean): Promise<CategoryEntity> {
@@ -127,7 +127,7 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       data: { isActive },
       include: categoryCountInclude,
     });
-    return CategoryModel.toEntity(updated);
+    return CategoryMapper.toEntity(updated);
   }
 
   async delete(id: number): Promise<void> {

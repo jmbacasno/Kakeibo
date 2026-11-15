@@ -4,7 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'dist-server', 'node_modules', 'server/prisma/migrations', 'sample-server'] },
+  { ignores: ['dist', 'dist-server', 'node_modules', 'server/infrastructure/database/prisma/migrations', 'sample-server'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

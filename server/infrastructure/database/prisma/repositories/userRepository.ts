@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { UserEntity } from "../../domain/entities/user/index.js";
-import { UserRepositoryInterface } from "../../domain/repositories/userRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { UserModel } from "../persistence/models/userModel.js";
+import { UserEntity } from "../../../../domain/entities/user/index.js";
+import { UserRepositoryInterface } from "../../../../domain/repositories/userRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { UserMapper } from "../mappers/userMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -11,13 +11,13 @@ export class UserRepository implements UserRepositoryInterface {
 
   async findById(id: number): Promise<UserEntity | null> {
     const raw = await this.client.user.findUnique({ where: { id } });
-    return raw ? UserModel.toEntity(raw) : null;
+    return raw ? UserMapper.toEntity(raw) : null;
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
     const normalized = email.trim().toLowerCase();
     const raw = await this.client.user.findUnique({ where: { email: normalized } });
-    return raw ? UserModel.toEntity(raw) : null;
+    return raw ? UserMapper.toEntity(raw) : null;
   }
 
   async create(user: UserEntity): Promise<UserEntity> {
@@ -28,6 +28,6 @@ export class UserRepository implements UserRepositoryInterface {
         passwordHash: user.passwordHash,
       },
     });
-    return UserModel.toEntity(created);
+    return UserMapper.toEntity(created);
   }
 }

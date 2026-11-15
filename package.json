@@ -10,12 +10,12 @@
     "preview": "vite preview --config client/vite.config.ts",
     "clean": "rm -rf dist dist-server",
     "lint": "tsc -p client/tsconfig.json --noEmit && tsc -p server/tsconfig.json --noEmit && eslint client/src server/domain server/application server/infrastructure server/presentation server/index.ts",
-    "prisma:generate": "prisma generate --schema=server/prisma/schema.prisma",
-    "prisma:migrate": "prisma migrate dev --schema=server/prisma/schema.prisma",
-    "prisma:seed": "tsx server/prisma/seed.ts"
+    "prisma:generate": "prisma generate --schema=server/infrastructure/database/prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema=server/infrastructure/database/prisma/schema.prisma",
+    "prisma:seed": "tsx server/infrastructure/database/prisma/seed.ts"
   },
   "prisma": {
-    "schema": "server/prisma/schema.prisma"
+    "schema": "server/infrastructure/database/prisma/schema.prisma"
   },
   "dependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,12 +1,12 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { TransactionEntity } from "../../domain/entities/transaction/index.js";
+import { TransactionEntity } from "../../../../domain/entities/transaction/index.js";
 import {
   PaginatedTransactionsResult,
   TransactionFilterParams,
   TransactionRepositoryInterface,
-} from "../../domain/repositories/transactionRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { TransactionModel } from "../persistence/models/transactionModel.js";
+} from "../../../../domain/repositories/transactionRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { TransactionMapper } from "../mappers/transactionMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -80,7 +80,7 @@ export class TransactionRepository implements TransactionRepositoryInterface {
     ]);
 
     return {
-      transactions: rows.map(TransactionModel.toEntity),
+      transactions: rows.map(TransactionMapper.toEntity),
       total,
     };
   }
@@ -93,7 +93,7 @@ export class TransactionRepository implements TransactionRepositoryInterface {
       },
       include: transactionInclude,
     });
-    return row ? TransactionModel.toEntity(row) : null;
+    return row ? TransactionMapper.toEntity(row) : null;
   }
 
   async create(data: {
@@ -113,7 +113,7 @@ export class TransactionRepository implements TransactionRepositoryInterface {
       },
       include: transactionInclude,
     });
-    return TransactionModel.toEntity(created);
+    return TransactionMapper.toEntity(created);
   }
 
   async update(
@@ -131,7 +131,7 @@ export class TransactionRepository implements TransactionRepositoryInterface {
       data,
       include: transactionInclude,
     });
-    return TransactionModel.toEntity(updated);
+    return TransactionMapper.toEntity(updated);
   }
 
   async delete(id: number): Promise<void> {

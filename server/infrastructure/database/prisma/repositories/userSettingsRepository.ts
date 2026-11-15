@@ -1,11 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { UserSettingsEntity } from "../../domain/entities/userSettings/index.js";
+import { UserSettingsEntity } from "../../../../domain/entities/userSettings/index.js";
 import {
   UpsertUserSettingsData,
   UserSettingsRepositoryInterface,
-} from "../../domain/repositories/userSettingsRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { UserSettingsModel } from "../persistence/models/userSettingsModel.js";
+} from "../../../../domain/repositories/userSettingsRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { UserSettingsMapper } from "../mappers/userSettingsMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -14,7 +14,7 @@ export class UserSettingsRepository implements UserSettingsRepositoryInterface {
 
   async findByUserId(userId: number): Promise<UserSettingsEntity | null> {
     const raw = await this.client.userSettings.findUnique({ where: { userId } });
-    return raw ? UserSettingsModel.toEntity(raw) : null;
+    return raw ? UserSettingsMapper.toEntity(raw) : null;
   }
 
   async create(settings: UserSettingsEntity): Promise<UserSettingsEntity> {
@@ -28,7 +28,7 @@ export class UserSettingsRepository implements UserSettingsRepositoryInterface {
         firstDayOfWeek: settings.firstDayOfWeek,
       },
     });
-    return UserSettingsModel.toEntity(created);
+    return UserSettingsMapper.toEntity(created);
   }
 
   async upsertByUserId(
@@ -53,6 +53,6 @@ export class UserSettingsRepository implements UserSettingsRepositoryInterface {
         firstDayOfWeek: data.firstDayOfWeek,
       },
     });
-    return UserSettingsModel.toEntity(saved);
+    return UserSettingsMapper.toEntity(saved);
   }
 }

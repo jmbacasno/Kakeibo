@@ -1,7 +1,7 @@
 import { UserSettings as PrismaUserSettings } from "@prisma/client";
-import { UserSettings } from "../../../domain/entities/userSettings/index.js";
+import { UserSettings } from "../../../../domain/entities/userSettings/index.js";
 
-export class UserSettingsModel {
+export class UserSettingsMapper {
   static toEntity(raw: PrismaUserSettings): UserSettings {
     return new UserSettings({
       id: raw.id,

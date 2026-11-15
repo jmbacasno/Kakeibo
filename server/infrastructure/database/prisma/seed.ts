@@ -1,8 +1,8 @@
 import bcryptjs from "bcryptjs";
-import { DEFAULT_KAKEIBO_CATEGORIES } from "../application/services/defaultCategoryTemplates.js";
-import { DEFAULT_USER_SETTINGS } from "../domain/entities/userSettings/index.js";
-import { settings } from "../infrastructure/config.js";
-import { prisma } from "../infrastructure/persistence/clients/prisma.js";
+import { DEFAULT_KAKEIBO_CATEGORIES } from "../../../application/services/defaultCategoryTemplates.js";
+import { DEFAULT_USER_SETTINGS } from "../../../domain/entities/userSettings/index.js";
+import { settings } from "../../config.js";
+import { prisma } from "./client.js";
 
 async function ensureDefaultCategoriesForUser(userId: number): Promise<void> {
   for (const template of DEFAULT_KAKEIBO_CATEGORIES) {

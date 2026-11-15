@@ -1,11 +1,15 @@
 import { Category as PrismaCategory } from "@prisma/client";
-import { Category, CategoryType, CategoryUsageCounts } from "../../../domain/entities/category/index.js";
+import {
+  Category,
+  CategoryType,
+  CategoryUsageCounts,
+} from "../../../../domain/entities/category/index.js";
 
 export type PrismaCategoryWithCounts = PrismaCategory & {
   _count?: CategoryUsageCounts;
 };
 
-export class CategoryModel {
+export class CategoryMapper {
   static toEntity(raw: PrismaCategoryWithCounts): Category {
     return new Category({
       id: raw.id,

@@ -28,12 +28,13 @@ A full-stack personal finance journal inspired by the Japanese **Kakeibo (家計
 ├── server/
 │   ├── domain/           # Entities, repository interfaces, domain services & errors
 │   ├── application/      # DTOs, Zod schemas, application services & UoW orchestration
-│   ├── infrastructure/   # Config, Pino logger, Prisma client/mappers/repositories, security
+│   ├── infrastructure/
+│   │   ├── database/
+│   │   │   └── prisma/   # Prisma schema, migrations, client, mappers, repositories, UnitOfWork & seed
+│   │   ├── logging/      # Pino logger
+│   │   ├── security/     # Password hasher & JWT token service
+│   │   └── config.ts     # Environment & database configuration
 │   ├── presentation/     # Express middlewares, Swagger docs, & /api/v1 routers
-│   ├── prisma/
-│   │   ├── schema.prisma # Database models & constraints
-│   │   ├── migrations/   # Prisma SQLite migrations
-│   │   └── seed.ts       # Default account & categories seed script
 │   ├── .env.example      # Server environment variables template
 │   ├── index.ts          # Express /api/v1 + Vite middleware / static server entrypoint
 │   └── tsconfig.json     # NodeNext TypeScript configuration for the server

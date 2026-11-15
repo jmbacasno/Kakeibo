@@ -1,11 +1,11 @@
 import { Note as PrismaNote } from "@prisma/client";
-import { Note, NotePlanSummary } from "../../../domain/entities/note/index.js";
+import { Note, NotePlanSummary } from "../../../../domain/entities/note/index.js";
 
 export type PrismaNoteWithPlan = PrismaNote & {
   monthlyPlan?: NotePlanSummary | null;
 };
 
-export class NoteModel {
+export class NoteMapper {
   static toEntity(raw: PrismaNoteWithPlan): Note {
     return new Note({
       id: raw.id,

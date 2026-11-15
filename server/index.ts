@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { settings } from "./infrastructure/config.js";
-import { prisma } from "./infrastructure/persistence/clients/prisma.js";
+import { prisma } from "./infrastructure/database/prisma/client.js";
 import authRoutes from "./presentation/api/v1/auth.js";
 import categoryRoutes from "./presentation/api/v1/categories.js";
 import dashboardRoutes from "./presentation/api/v1/dashboard.js";

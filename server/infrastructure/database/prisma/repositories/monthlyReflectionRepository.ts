@@ -1,11 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { MonthlyReflectionEntity } from "../../domain/entities/monthlyReflection/index.js";
+import { MonthlyReflectionEntity } from "../../../../domain/entities/monthlyReflection/index.js";
 import {
   MonthlyReflectionRepositoryInterface,
   ReflectionFilterParams,
-} from "../../domain/repositories/monthlyReflectionRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { MonthlyReflectionModel } from "../persistence/models/monthlyReflectionModel.js";
+} from "../../../../domain/repositories/monthlyReflectionRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { MonthlyReflectionMapper } from "../mappers/monthlyReflectionMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -43,7 +43,7 @@ export class MonthlyReflectionRepository implements MonthlyReflectionRepositoryI
       include: reflectionInclude,
       orderBy: [{ monthlyPlan: { year: "desc" } }, { monthlyPlan: { month: "desc" } }],
     });
-    return rows.map(MonthlyReflectionModel.toEntity);
+    return rows.map(MonthlyReflectionMapper.toEntity);
   }
 
   async findByIdAndUserId(
@@ -57,7 +57,7 @@ export class MonthlyReflectionRepository implements MonthlyReflectionRepositoryI
       },
       include: reflectionInclude,
     });
-    return row ? MonthlyReflectionModel.toEntity(row) : null;
+    return row ? MonthlyReflectionMapper.toEntity(row) : null;
   }
 
   async findByPlanId(monthlyPlanId: number): Promise<MonthlyReflectionEntity | null> {
@@ -65,7 +65,7 @@ export class MonthlyReflectionRepository implements MonthlyReflectionRepositoryI
       where: { monthlyPlanId },
       include: reflectionInclude,
     });
-    return row ? MonthlyReflectionModel.toEntity(row) : null;
+    return row ? MonthlyReflectionMapper.toEntity(row) : null;
   }
 
   async create(data: {
@@ -76,7 +76,7 @@ export class MonthlyReflectionRepository implements MonthlyReflectionRepositoryI
       data,
       include: reflectionInclude,
     });
-    return MonthlyReflectionModel.toEntity(created);
+    return MonthlyReflectionMapper.toEntity(created);
   }
 
   async update(id: number, content: string): Promise<MonthlyReflectionEntity> {
@@ -85,7 +85,7 @@ export class MonthlyReflectionRepository implements MonthlyReflectionRepositoryI
       data: { content },
       include: reflectionInclude,
     });
-    return MonthlyReflectionModel.toEntity(updated);
+    return MonthlyReflectionMapper.toEntity(updated);
   }
 
   async delete(id: number): Promise<void> {

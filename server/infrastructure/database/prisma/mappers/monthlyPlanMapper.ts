@@ -1,20 +1,20 @@
 import { MonthlyPlan as PrismaMonthlyPlan } from "@prisma/client";
-import { MonthlyPlan, PlanStatus } from "../../../domain/entities/monthlyPlan/index.js";
+import { MonthlyPlan, PlanStatus } from "../../../../domain/entities/monthlyPlan/index.js";
 import {
-  CategoryBudgetModel,
+  CategoryBudgetMapper,
   PrismaCategoryBudgetWithCategory,
-} from "./categoryBudgetModel.js";
+} from "./categoryBudgetMapper.js";
 import {
   PrismaTransactionWithRelations,
-  TransactionModel,
-} from "./transactionModel.js";
+  TransactionMapper,
+} from "./transactionMapper.js";
 
 export type PrismaMonthlyPlanWithRelations = PrismaMonthlyPlan & {
   budgets?: PrismaCategoryBudgetWithCategory[];
   transactions?: PrismaTransactionWithRelations[];
 };
 
-export class MonthlyPlanModel {
+export class MonthlyPlanMapper {
   static toEntity(raw: PrismaMonthlyPlanWithRelations): MonthlyPlan {
     return new MonthlyPlan({
       id: raw.id,
@@ -26,8 +26,8 @@ export class MonthlyPlanModel {
       status: raw.status as PlanStatus,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-      budgets: raw.budgets ? raw.budgets.map(CategoryBudgetModel.toEntity) : [],
-      transactions: raw.transactions ? raw.transactions.map(TransactionModel.toEntity) : [],
+      budgets: raw.budgets ? raw.budgets.map(CategoryBudgetMapper.toEntity) : [],
+      transactions: raw.transactions ? raw.transactions.map(TransactionMapper.toEntity) : [],
     });
   }
 }

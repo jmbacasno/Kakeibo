@@ -15,7 +15,6 @@
     "infrastructure/**/*",
     "application/**/*",
     "presentation/**/*",
-    "prisma/seed.ts",
     "index.ts"
   ]
 }

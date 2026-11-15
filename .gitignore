@@ -12,5 +12,5 @@ coverage/
 *.db-journal
 *.db-wal
 *.db-shm
-server/prisma/*.db*
+server/infrastructure/database/prisma/*.db*
 data/

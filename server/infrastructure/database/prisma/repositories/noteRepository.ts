@@ -1,11 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { NoteEntity } from "../../domain/entities/note/index.js";
+import { NoteEntity } from "../../../../domain/entities/note/index.js";
 import {
   NoteFilterParams,
   NoteRepositoryInterface,
-} from "../../domain/repositories/noteRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { NoteModel } from "../persistence/models/noteModel.js";
+} from "../../../../domain/repositories/noteRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { NoteMapper } from "../mappers/noteMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -39,7 +39,7 @@ export class NoteRepository implements NoteRepositoryInterface {
       include: noteInclude,
       orderBy: [{ createdAt: filters.order || "asc" }, { id: filters.order || "asc" }],
     });
-    return rows.map(NoteModel.toEntity);
+    return rows.map(NoteMapper.toEntity);
   }
 
   async findByIdAndUserId(id: number, userId: number): Promise<NoteEntity | null> {
@@ -50,7 +50,7 @@ export class NoteRepository implements NoteRepositoryInterface {
       },
       include: noteInclude,
     });
-    return row ? NoteModel.toEntity(row) : null;
+    return row ? NoteMapper.toEntity(row) : null;
   }
 
   async create(data: {
@@ -62,7 +62,7 @@ export class NoteRepository implements NoteRepositoryInterface {
       data,
       include: noteInclude,
     });
-    return NoteModel.toEntity(created);
+    return NoteMapper.toEntity(created);
   }
 
   async update(
@@ -77,7 +77,7 @@ export class NoteRepository implements NoteRepositoryInterface {
       data,
       include: noteInclude,
     });
-    return NoteModel.toEntity(updated);
+    return NoteMapper.toEntity(updated);
   }
 
   async delete(id: number): Promise<void> {

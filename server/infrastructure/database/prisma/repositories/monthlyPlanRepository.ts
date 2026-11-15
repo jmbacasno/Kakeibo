@@ -1,11 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { MonthlyPlanEntity, PlanStatus } from "../../domain/entities/monthlyPlan/index.js";
+import { MonthlyPlanEntity, PlanStatus } from "../../../../domain/entities/monthlyPlan/index.js";
 import {
   AvailablePlanPeriod,
   MonthlyPlanRepositoryInterface,
-} from "../../domain/repositories/monthlyPlanRepositoryInterface.js";
-import { prisma } from "../persistence/clients/prisma.js";
-import { MonthlyPlanModel } from "../persistence/models/monthlyPlanModel.js";
+} from "../../../../domain/repositories/monthlyPlanRepositoryInterface.js";
+import { prisma } from "../client.js";
+import { MonthlyPlanMapper } from "../mappers/monthlyPlanMapper.js";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -34,7 +34,7 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
       include: planFullInclude,
       orderBy: [{ year: "desc" }, { month: "desc" }],
     });
-    return rows.map(MonthlyPlanModel.toEntity);
+    return rows.map(MonthlyPlanMapper.toEntity);
   }
 
   async findAvailablePeriodsByUserId(userId: number): Promise<AvailablePlanPeriod[]> {
@@ -55,7 +55,7 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
       where: { id, userId },
       include: planFullInclude,
     });
-    return row ? MonthlyPlanModel.toEntity(row) : null;
+    return row ? MonthlyPlanMapper.toEntity(row) : null;
   }
 
   async findByPeriodAndUserId(
@@ -67,7 +67,7 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
       where: { month, year, userId },
       include: planFullInclude,
     });
-    return row ? MonthlyPlanModel.toEntity(row) : null;
+    return row ? MonthlyPlanMapper.toEntity(row) : null;
   }
 
   async create(data: {
@@ -89,7 +89,7 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
       },
       include: planFullInclude,
     });
-    return MonthlyPlanModel.toEntity(created);
+    return MonthlyPlanMapper.toEntity(created);
   }
 
   async update(
@@ -109,7 +109,7 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
       },
       include: planFullInclude,
     });
-    return MonthlyPlanModel.toEntity(updated);
+    return MonthlyPlanMapper.toEntity(updated);
   }
 
   async updateStatus(id: number, status: PlanStatus): Promise<MonthlyPlanEntity> {
@@ -118,6 +118,6 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
       data: { status },
       include: planFullInclude,
     });
-    return MonthlyPlanModel.toEntity(updated);
+    return MonthlyPlanMapper.toEntity(updated);
   }
 }

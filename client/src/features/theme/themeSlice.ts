@@ -1,24 +1,39 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type ThemeMode = 'light' | 'dark' | 'paper';
+export type ThemeMode = 'system' | 'light' | 'dark';
 
 const THEME_STORAGE_KEY = 'kakeibo_theme';
 
 function getInitialTheme(): ThemeMode {
   try {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark' || stored === 'paper') {
+    if (stored === 'system' || stored === 'light' || stored === 'dark') {
       return stored;
     }
   } catch {
     // Ignore storage access errors
   }
-  return 'paper';
+  return 'system';
+}
+
+export function resolveTheme(theme: ThemeMode): 'light' | 'dark' {
+  if (theme === 'system') {
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
+      return 'dark';
+    }
+    return 'light';
+  }
+  return theme;
 }
 
 export function applyThemeToDom(theme: ThemeMode): void {
+  const resolved = resolveTheme(theme);
   if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme', resolved);
   }
   try {
     localStorage.setItem(THEME_STORAGE_KEY, theme);

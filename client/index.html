@@ -15,13 +15,19 @@
     <script>
       try {
         var t = localStorage.getItem('kakeibo_theme');
-        if (t !== 'light' && t !== 'dark' && t !== 'paper') t = 'paper';
-        document.documentElement.setAttribute('data-theme', t);
+        if (t !== 'system' && t !== 'light' && t !== 'dark') t = 'system';
+        var resolved =
+          t === 'system'
+            ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : t;
+        document.documentElement.setAttribute('data-theme', resolved);
       } catch (e) {}
     </script>
   </head>
   <body class="antialiased">
     <div id="root"></div>
-    <script type="module" src="/client/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

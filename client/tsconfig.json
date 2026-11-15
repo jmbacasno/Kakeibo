@@ -18,12 +18,12 @@
     "strict": true,
     "paths": {
       "@/*": [
-        "./client/src/*"
+        "./src/*"
       ]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["client/src/**/*", "vite.config.ts"],
-  "exclude": ["dist", "node_modules", "sample-server"]
+  "include": ["src/**/*", "vite.config.ts"],
+  "exclude": ["../dist", "../node_modules"]
 }

@@ -6,6 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+!client/.env.example
 !server/.env.example
 *.db
 *.db-journal

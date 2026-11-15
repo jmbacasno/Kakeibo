@@ -2,43 +2,6 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root,
-[data-theme="paper"] {
-  color-scheme: light;
-  --bg-canvas: #f8f7f4;
-  --bg-surface: #ffffff;
-  --bg-surface-muted: #faf9f6;
-  --bg-subtle: #f1efea;
-  --bg-subtle-strong: #eae7e0;
-  --text-primary: #1c1b18;
-  --text-secondary: #4a4740;
-  --text-muted: #6b675e;
-  --text-placeholder: #9e998e;
-  --border-default: #e5e2dc;
-  --border-strong: #d8d4cc;
-  --accent-primary: #355482;
-  --accent-hover: #29436a;
-  --accent-text: #355482;
-  --accent-soft: #eef2f7;
-  --accent-soft-hover: #e1e8f2;
-  --accent-border: #cad5e6;
-  --success-text: #1f543b;
-  --success-accent: #2a6f4e;
-  --success-bg: #f4faf6;
-  --success-border: #c2dfce;
-  --warning-text: #8a510a;
-  --warning-accent: #b4690e;
-  --warning-bg: #fef9ee;
-  --warning-border: #ead4a3;
-  --danger-text: #8f2a2a;
-  --danger-accent: #b83b3b;
-  --danger-hover: #9c2f2f;
-  --danger-bg: #fdf6f6;
-  --danger-border: #e8c5c5;
-  --chart-planned: #cbd5e1;
-  --chart-planned-bar: #94a3b8;
-  --overlay-scrim: rgba(28, 27, 24, 0.42);
-}
-
 [data-theme="light"] {
   color-scheme: light;
   --bg-canvas: #f4f5f7;

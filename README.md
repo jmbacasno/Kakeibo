@@ -11,16 +11,20 @@ A full-stack personal finance journal inspired by the Japanese **Kakeibo (家計
 
 ```text
 ├── client/
-│   └── src/
-│       ├── app/          # Redux store & typed hooks
-│       ├── components/   # Reusable UI components
-│       ├── features/     # Redux slices & feature modules
-│       ├── layouts/      # Workspace shell & navigation
-│       ├── pages/        # Route pages
-│       ├── routes/       # ProtectedRoute wrapper
-│       ├── services/     # Axios API client
-│       ├── types/        # Shared frontend domain TypeScript interfaces
-│       └── utils/        # Currency, date, & Kakeibo helpers
+│   ├── src/
+│   │   ├── app/          # Redux store & typed hooks
+│   │   ├── components/   # Reusable UI components
+│   │   ├── features/     # Redux slices & feature modules
+│   │   ├── layouts/      # Workspace shell & navigation
+│   │   ├── pages/        # Route pages
+│   │   ├── routes/       # ProtectedRoute wrapper
+│   │   ├── services/     # Axios API client
+│   │   ├── types/        # Shared frontend domain TypeScript interfaces
+│   │   └── utils/        # Currency, date, & Kakeibo helpers
+│   ├── .env.example      # Client Vite environment variables template
+│   ├── index.html        # Client HTML entry point
+│   ├── tsconfig.json     # Client TypeScript configuration
+│   └── vite.config.ts    # Vite & Tailwind CSS configuration
 ├── server/
 │   ├── domain/           # Entities, repository interfaces, domain services & errors
 │   ├── application/      # DTOs, Zod schemas, application services & UoW orchestration
@@ -30,11 +34,10 @@ A full-stack personal finance journal inspired by the Japanese **Kakeibo (家計
 │   │   ├── schema.prisma # Database models & constraints
 │   │   ├── migrations/   # Prisma SQLite migrations
 │   │   └── seed.ts       # Default account & categories seed script
+│   ├── .env.example      # Server environment variables template
 │   ├── index.ts          # Express /api/v1 + Vite middleware / static server entrypoint
 │   └── tsconfig.json     # NodeNext TypeScript configuration for the server
 ├── .env.example
-├── index.html
-├── tsconfig.json
 └── package.json
 ```
 
@@ -48,10 +51,10 @@ npm install
 
 ### 2. Configure Environment Variables
 
-Copy `.env.example` to `.env` and update values as needed:
+Copy `server/.env.example` to `server/.env` (and optionally `client/.env.example` to `client/.env`) and update values as needed:
 
 ```bash
-cp .env.example .env
+cp server/.env.example server/.env
 ```
 
 Default `.env` variables:

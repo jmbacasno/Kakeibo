@@ -16,7 +16,7 @@ export class InvalidLanguageError extends DomainError {
 
 export class InvalidThemeError extends DomainError {
   constructor() {
-    super("Theme must be one of: paper, light, dark.", "INVALID_THEME");
+    super("Theme must be one of: system, light, dark.", "INVALID_THEME");
     this.name = "InvalidThemeError";
   }
 }

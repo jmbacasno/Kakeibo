@@ -13,7 +13,7 @@ import {
 export const DEFAULT_USER_SETTINGS = {
   currency: "USD" as SupportedCurrency,
   language: "en" as SupportedLanguage,
-  theme: "paper" as SupportedTheme,
+  theme: "system" as SupportedTheme,
   dateFormat: "MMM D, YYYY" as SupportedDateFormat,
   firstDayOfWeek: 0,
 };

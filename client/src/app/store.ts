@@ -71,5 +71,14 @@ export const store = configureStore({
 
 applyThemeToDom(store.getState().theme.mode);
 
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+  const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  colorSchemeQuery.addEventListener('change', () => {
+    if (store.getState().theme.mode === 'system') {
+      applyThemeToDom('system');
+    }
+  });
+}
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

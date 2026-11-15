@@ -1,11 +1,11 @@
-import { BookOpen, Moon, Sun } from 'lucide-react';
+import { Monitor, Moon, Sun } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { updateSettings } from '../../settings/settingsSlice';
 import { setTheme, ThemeMode } from '../themeSlice';
 
 const THEME_OPTIONS: Array<{ id: ThemeMode; label: string; icon: typeof Sun }> = [
+  { id: 'system', label: 'System', icon: Monitor },
   { id: 'light', label: 'Light', icon: Sun },
-  { id: 'paper', label: 'Paper', icon: BookOpen },
   { id: 'dark', label: 'Dark', icon: Moon },
 ];
 

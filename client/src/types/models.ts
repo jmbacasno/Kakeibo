@@ -149,7 +149,7 @@ export interface DashboardData {
 
 export type SupportedCurrency = 'USD' | 'JPY' | 'EUR' | 'GBP' | 'PHP' | 'CAD' | 'AUD' | 'SGD';
 export type SupportedLanguage = 'en' | 'ja';
-export type SupportedTheme = 'paper' | 'light' | 'dark';
+export type SupportedTheme = 'system' | 'light' | 'dark';
 export type SupportedDateFormat = 'MMM D, YYYY' | 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY';
 export type FirstDayOfWeek = 0 | 1;
 

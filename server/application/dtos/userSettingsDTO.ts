@@ -30,7 +30,7 @@ export const updateUserSettingsSchema = z
       .trim()
       .toLowerCase()
       .refine((val) => (SUPPORTED_THEMES as readonly string[]).includes(val), {
-        message: "Theme must be paper, light, or dark",
+        message: "Theme must be system, light, or dark",
       })
       .optional(),
     dateFormat: z

@@ -76,8 +76,8 @@ async function mountServer() {
   if (settings.nodeEnv !== "production") {
     logger.info("Initializing Vite development middleware server...");
     const vite = await createViteServer({
-      root: process.cwd(),
-      configFile: path.resolve(process.cwd(), "vite.config.ts"),
+      root: path.resolve(process.cwd(), "client"),
+      configFile: path.resolve(process.cwd(), "client/vite.config.ts"),
       server: { middlewareMode: true },
       appType: "spa",
     });

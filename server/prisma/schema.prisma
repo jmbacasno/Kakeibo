@@ -114,7 +114,7 @@ model UserSettings {
   userId         Int      @unique
   currency       String   @default("USD")
   language       String   @default("en")
-  theme          String   @default("paper")
+  theme          String   @default("system")
   dateFormat     String   @default("MMM D, YYYY")
   firstDayOfWeek Int      @default(0) // 0 = Sunday, 1 = Monday
   createdAt      DateTime @default(now())

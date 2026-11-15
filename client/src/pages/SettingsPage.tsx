@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { BookOpen, Moon, RotateCcw, Save, Sun } from 'lucide-react';
+import { Monitor, Moon, RotateCcw, Save, Sun } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { CardSkeleton } from '../components/LoadingSkeleton';
 import { useToast } from '../components/ToastProvider';
@@ -23,7 +23,7 @@ import {
 const DEFAULT_PREFERENCES = {
   currency: 'USD' as SupportedCurrency,
   language: 'en' as SupportedLanguage,
-  theme: 'paper' as SupportedTheme,
+  theme: 'system' as SupportedTheme,
   dateFormat: 'MMM D, YYYY' as SupportedDateFormat,
   firstDayOfWeek: 0 as FirstDayOfWeek,
 };
@@ -58,10 +58,10 @@ const THEME_OPTIONS: Array<{
   icon: typeof Sun;
 }> = [
   {
-    id: 'paper',
-    label: 'Paper',
-    description: 'Warm washi-toned ledger surface for long review sessions.',
-    icon: BookOpen,
+    id: 'system',
+    label: 'System',
+    description: 'Follows your device or OS light and dark appearance automatically.',
+    icon: Monitor,
   },
   {
     id: 'light',

@@ -18,7 +18,7 @@ export const SUPPORTED_CURRENCIES = [
 ] as const;
 
 export const SUPPORTED_LANGUAGES = ["en", "ja"] as const;
-export const SUPPORTED_THEMES = ["paper", "light", "dark"] as const;
+export const SUPPORTED_THEMES = ["system", "light", "dark"] as const;
 export const SUPPORTED_DATE_FORMATS = [
   "MMM D, YYYY",
   "YYYY-MM-DD",

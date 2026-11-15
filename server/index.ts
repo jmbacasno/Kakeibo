@@ -1,7 +1,9 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 import "express-async-errors";
+import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { settings } from "./infrastructure/config.js";
 import { prisma } from "./infrastructure/persistence/clients/prisma.js";
@@ -118,10 +120,18 @@ async function mountServer() {
   process.on("SIGTERM", () => handleShutdown("SIGTERM"));
 }
 
-const isDirectRun =
-  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+function isMainModule(): boolean {
+  const entryPath = process.argv[1];
+  if (!entryPath) return false;
+  const currentPath = fileURLToPath(import.meta.url);
+  try {
+    return fs.realpathSync(entryPath) === fs.realpathSync(currentPath);
+  } catch {
+    return path.resolve(entryPath) === path.resolve(currentPath);
+  }
+}
 
-if (isDirectRun) {
+if (isMainModule()) {
   mountServer().catch((err) => {
     logger.error("Bootstrapping server failed:", err);
     process.exit(1);

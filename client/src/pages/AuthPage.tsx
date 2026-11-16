@@ -13,9 +13,11 @@ export default function AuthPage() {
   const { isAuthenticated, loading, error } = useAppSelector((state) => state.auth);
 
   const [mode, setMode] = useState<AuthMode>('login');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [repeatPassword, setRepeatPassword] = useState('');
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
@@ -27,6 +29,8 @@ export default function AuthPage() {
   const switchMode = (nextMode: AuthMode) => {
     setMode(nextMode);
     setFormError('');
+    setPassword('');
+    setRepeatPassword('');
     dispatch(clearAuthError());
   };
 
@@ -34,39 +38,55 @@ export default function AuthPage() {
     e.preventDefault();
     setFormError('');
 
-    if (mode === 'register' && name.trim().length < 2) {
-      setFormError('Please enter your name (at least 2 characters).');
-      return;
-    }
-    if (mode === 'register' && (!email.trim() || !email.includes('@'))) {
-      setFormError('Please enter a valid email address.');
-      return;
-    }
-    if (mode === 'login' && !email.trim()) {
-      setFormError('Please enter your email or username.');
-      return;
-    }
-    if (mode === 'register' && password.length < 8) {
-      setFormError('Password must be at least 8 characters long.');
-      return;
-    }
-    if (mode === 'login' && !password) {
-      setFormError('Please enter your password.');
-      return;
-    }
-
     if (mode === 'register') {
+      if (!firstName.trim()) {
+        setFormError('Please enter your first name.');
+        return;
+      }
+      if (!lastName.trim()) {
+        setFormError('Please enter your last name.');
+        return;
+      }
+      if (!email.trim() || !email.includes('@')) {
+        setFormError('Please enter a valid email address.');
+        return;
+      }
+      if (password.length < 8) {
+        setFormError('Password must be at least 8 characters long.');
+        return;
+      }
+      if (password !== repeatPassword) {
+        setFormError('Passwords do not match.');
+        return;
+      }
+
       const res = await dispatch(
-        registerUser({ name: name.trim(), email: email.trim(), password })
+        registerUser({
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim(),
+          password,
+          repeatPassword,
+        })
       );
       if (registerUser.fulfilled.match(res)) {
         navigate('/', { replace: true });
       }
-    } else {
-      const res = await dispatch(loginUser({ email: email.trim(), password }));
-      if (loginUser.fulfilled.match(res)) {
-        navigate('/', { replace: true });
-      }
+      return;
+    }
+
+    if (!email.trim()) {
+      setFormError('Please enter your email or username.');
+      return;
+    }
+    if (!password) {
+      setFormError('Please enter your password.');
+      return;
+    }
+
+    const res = await dispatch(loginUser({ email: email.trim(), password }));
+    if (loginUser.fulfilled.match(res)) {
+      navigate('/', { replace: true });
     }
   };
 
@@ -164,19 +184,41 @@ export default function AuthPage() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
             {mode === 'register' && (
-              <div>
-                <label htmlFor="auth-name" className="block text-xs font-medium text-ink-secondary mb-1.5">
-                  Full name
-                </label>
-                <input
-                  id="auth-name"
-                  type="text"
-                  autoComplete="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Haruki Sato"
-                  className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="auth-first-name"
+                    className="block text-xs font-medium text-ink-secondary mb-1.5"
+                  >
+                    First name
+                  </label>
+                  <input
+                    id="auth-first-name"
+                    type="text"
+                    autoComplete="given-name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Haruki"
+                    className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="auth-last-name"
+                    className="block text-xs font-medium text-ink-secondary mb-1.5"
+                  >
+                    Last name
+                  </label>
+                  <input
+                    id="auth-last-name"
+                    type="text"
+                    autoComplete="family-name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Sato"
+                    className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+                  />
+                </div>
               </div>
             )}
 
@@ -187,7 +229,7 @@ export default function AuthPage() {
               <input
                 id="auth-email"
                 type={mode === 'login' ? 'text' : 'email'}
-                autoComplete="username"
+                autoComplete={mode === 'login' ? 'username' : 'email'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={mode === 'login' ? 'you@example.com or admin' : 'you@example.com'}
@@ -209,6 +251,26 @@ export default function AuthPage() {
                 className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
               />
             </div>
+
+            {mode === 'register' && (
+              <div>
+                <label
+                  htmlFor="auth-repeat-password"
+                  className="block text-xs font-medium text-ink-secondary mb-1.5"
+                >
+                  Repeat password
+                </label>
+                <input
+                  id="auth-repeat-password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={repeatPassword}
+                  onChange={(e) => setRepeatPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                  className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+                />
+              </div>
+            )}
 
             <button
               type="submit"

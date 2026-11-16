@@ -45,8 +45,8 @@ async function seedDefaultAccounts(): Promise<void> {
   const adminPasswordHash = await bcryptjs.hash("admin", settings.bcryptSaltRounds);
 
   const accounts = [
-    { name: "Administrator", email: "admin" },
-    { name: "Admin", email: "admin@gmail.com" },
+    { firstName: "System", lastName: "Administrator", email: "admin" },
+    { firstName: "Admin", lastName: "User", email: "admin@gmail.com" },
   ];
 
   for (const account of accounts) {
@@ -54,9 +54,10 @@ async function seedDefaultAccounts(): Promise<void> {
     if (!existing) {
       const created = await prisma.user.create({
         data: {
-          name: account.name,
+          firstName: account.firstName,
+          lastName: account.lastName,
           email: account.email,
-          passwordHash: adminPasswordHash,
+          password: adminPasswordHash,
         },
       });
       await ensureDefaultCategoriesForUser(created.id);

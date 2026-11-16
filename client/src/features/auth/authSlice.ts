@@ -4,11 +4,19 @@ import { User } from '../../types/models';
 import {
   authService,
   AuthSessionResponse,
+  ChangePasswordPayload,
   LoginPayload,
   RegisterPayload,
+  UpdateAccountPayload,
 } from './authService';
 
-export type { AuthSessionResponse, LoginPayload, RegisterPayload };
+export type {
+  AuthSessionResponse,
+  ChangePasswordPayload,
+  LoginPayload,
+  RegisterPayload,
+  UpdateAccountPayload,
+};
 
 export const registerUser = createAsyncThunk<AuthSessionResponse, RegisterPayload, { rejectValue: string }>(
   'auth/register',
@@ -43,6 +51,30 @@ export const fetchCurrentUser = createAsyncThunk<{ user: User }, void, { rejectV
   }
 );
 
+export const updateAccountDetails = createAsyncThunk<
+  AuthSessionResponse,
+  UpdateAccountPayload,
+  { rejectValue: string }
+>('auth/updateAccount', async (payload, { rejectWithValue }) => {
+  try {
+    return await authService.updateAccount(payload);
+  } catch (err) {
+    return rejectWithValue(getErrorMessage(err));
+  }
+});
+
+export const changeAccountPassword = createAsyncThunk<
+  { message: string },
+  ChangePasswordPayload,
+  { rejectValue: string }
+>('auth/changePassword', async (payload, { rejectWithValue }) => {
+  try {
+    return await authService.changePassword(payload);
+  } catch (err) {
+    return rejectWithValue(getErrorMessage(err));
+  }
+});
+
 export const logoutUser = createAsyncThunk<void, void>('auth/logout', async () => {
   await authService.logout();
 });
@@ -53,6 +85,8 @@ interface AuthState {
   isAuthenticated: boolean;
   initialized: boolean;
   loading: boolean;
+  savingAccount: boolean;
+  savingPassword: boolean;
   error: string | null;
 }
 
@@ -62,6 +96,8 @@ const initialState: AuthState = {
   isAuthenticated: false,
   initialized: !authService.getStoredToken(),
   loading: false,
+  savingAccount: false,
+  savingPassword: false,
   error: null,
 };
 
@@ -127,6 +163,26 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         state.initialized = true;
+      })
+      .addCase(updateAccountDetails.pending, (state) => {
+        state.savingAccount = true;
+      })
+      .addCase(updateAccountDetails.fulfilled, (state, action) => {
+        state.savingAccount = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(updateAccountDetails.rejected, (state) => {
+        state.savingAccount = false;
+      })
+      .addCase(changeAccountPassword.pending, (state) => {
+        state.savingPassword = true;
+      })
+      .addCase(changeAccountPassword.fulfilled, (state) => {
+        state.savingPassword = false;
+      })
+      .addCase(changeAccountPassword.rejected, (state) => {
+        state.savingPassword = false;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;

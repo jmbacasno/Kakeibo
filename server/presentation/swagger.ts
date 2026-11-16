@@ -33,7 +33,12 @@ import {
   listTransactionsQuerySchema,
   updateTransactionSchema,
 } from "../application/dtos/transactionDTO.js";
-import { loginSchema, registerSchema } from "../application/dtos/userDTO.js";
+import {
+  changePasswordSchema,
+  loginSchema,
+  registerSchema,
+  updateAccountSchema,
+} from "../application/dtos/userDTO.js";
 import { updateUserSettingsSchema } from "../application/dtos/userSettingsDTO.js";
 import {
   SUPPORTED_CURRENCIES,
@@ -239,13 +244,25 @@ const openApiSchema = {
     schemas: {
       // --- Input DTO Schemas (derived directly from application Zod schemas) ---
       RegisterInput: zodToOpenApiSchema(registerSchema, undefined, {
-        name: "Haruki Tanaka",
+        firstName: "Haruki",
+        lastName: "Tanaka",
         email: "haruki@example.com",
         password: "strongpassword123",
+        repeatPassword: "strongpassword123",
       }),
       LoginInput: zodToOpenApiSchema(loginSchema, undefined, {
         email: "admin",
         password: "admin",
+      }),
+      UpdateAccountInput: zodToOpenApiSchema(updateAccountSchema, undefined, {
+        firstName: "Haruki",
+        lastName: "Tanaka",
+        email: "haruki@example.com",
+      }),
+      ChangePasswordInput: zodToOpenApiSchema(changePasswordSchema, undefined, {
+        currentPassword: "strongpassword123",
+        newPassword: "newstrongpassword456",
+        repeatPassword: "newstrongpassword456",
       }),
       CreatePlanInput: zodToOpenApiSchema(createPlanSchema, undefined, {
         month: 11,
@@ -402,12 +419,26 @@ const openApiSchema = {
         type: "object",
         properties: {
           id: { type: "integer", example: 1 },
-          name: { type: "string", example: "Administrator" },
+          firstName: { type: "string", example: "System" },
+          lastName: { type: "string", example: "Administrator" },
           email: { type: "string", example: "admin" },
+          lastLoginAt: { type: "string", format: "date-time", nullable: true },
+          loginCount: { type: "integer", example: 3 },
+          failLoginCount: { type: "integer", example: 0 },
           createdAt: { type: "string", format: "date-time", nullable: true },
           updatedAt: { type: "string", format: "date-time", nullable: true },
         },
-        required: ["id", "name", "email", "createdAt", "updatedAt"],
+        required: [
+          "id",
+          "firstName",
+          "lastName",
+          "email",
+          "lastLoginAt",
+          "loginCount",
+          "failLoginCount",
+          "createdAt",
+          "updatedAt",
+        ],
       },
       AuthSession: {
         type: "object",
@@ -795,6 +826,33 @@ const openApiSchema = {
             },
             "Authenticated user profile"
           ),
+          401: unauthorizedErrorRef,
+        },
+      },
+    },
+    "/auth/account": {
+      put: {
+        summary: "Update authenticated user's profile details (firstName, lastName, email)",
+        tags: ["Auth"],
+        security: authSecurity,
+        requestBody: jsonRequestBody("UpdateAccountInput"),
+        responses: {
+          200: successEnvelope(refSchema("AuthSession"), "Account details updated"),
+          400: validationErrorRef,
+          401: unauthorizedErrorRef,
+          409: conflictErrorRef,
+        },
+      },
+    },
+    "/auth/password": {
+      put: {
+        summary: "Change authenticated user's password",
+        tags: ["Auth"],
+        security: authSecurity,
+        requestBody: jsonRequestBody("ChangePasswordInput"),
+        responses: {
+          200: successEnvelope(refSchema("MessageData"), "Password updated successfully"),
+          400: validationErrorRef,
           401: unauthorizedErrorRef,
         },
       },

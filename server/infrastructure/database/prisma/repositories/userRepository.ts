@@ -23,11 +23,52 @@ export class UserRepository implements UserRepositoryInterface {
   async create(user: UserEntity): Promise<UserEntity> {
     const created = await this.client.user.create({
       data: {
-        name: user.name,
+        firstName: user.firstName.trim(),
+        lastName: user.lastName.trim(),
         email: user.email.trim().toLowerCase(),
-        passwordHash: user.passwordHash,
+        password: user.password,
+        lastLoginAt: user.lastLoginAt,
+        loginCount: user.loginCount,
+        failLoginCount: user.failLoginCount,
       },
     });
     return UserMapper.toEntity(created);
+  }
+
+  async update(user: UserEntity): Promise<UserEntity> {
+    const updated = await this.client.user.update({
+      where: { id: user.id! },
+      data: {
+        firstName: user.firstName.trim(),
+        lastName: user.lastName.trim(),
+        email: user.email.trim().toLowerCase(),
+        password: user.password,
+        lastLoginAt: user.lastLoginAt,
+        loginCount: user.loginCount,
+        failLoginCount: user.failLoginCount,
+      },
+    });
+    return UserMapper.toEntity(updated);
+  }
+
+  async recordSuccessfulLogin(id: number, loggedInAt: Date): Promise<UserEntity> {
+    const updated = await this.client.user.update({
+      where: { id },
+      data: {
+        lastLoginAt: loggedInAt,
+        loginCount: { increment: 1 },
+        failLoginCount: 0,
+      },
+    });
+    return UserMapper.toEntity(updated);
+  }
+
+  async recordFailedLogin(id: number): Promise<void> {
+    await this.client.user.update({
+      where: { id },
+      data: {
+        failLoginCount: { increment: 1 },
+      },
+    });
   }
 }

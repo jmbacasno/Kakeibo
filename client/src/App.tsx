@@ -5,6 +5,7 @@ import { ToastProvider } from './components/ToastProvider';
 import { fetchCurrentUser, forceLogout } from './features/auth/authSlice';
 import { fetchSettings } from './features/settings/settingsSlice';
 import AppLayout from './layouts/AppLayout';
+import AccountPage from './pages/AccountPage';
 import AuthPage from './pages/AuthPage';
 import CategoriesPage from './pages/CategoriesPage';
 import DashboardPage from './pages/DashboardPage';
@@ -46,6 +47,7 @@ export default function App() {
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/notes" element={<NotesPage />} />
               <Route path="/reflections" element={<ReflectionsPage />} />
+              <Route path="/account" element={<AccountPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Route>

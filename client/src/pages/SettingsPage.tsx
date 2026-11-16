@@ -372,7 +372,7 @@ function SettingsForm({ settings, user, saving }: SettingsFormProps) {
 
           <div className="space-y-1 text-xs text-ink-muted">
             <p className="text-ink-secondary font-medium truncate">
-              {user ? `${user.name} · ${user.email}` : 'Signed-in account'}
+              {user ? `${user.firstName} ${user.lastName} · ${user.email}` : 'Signed-in account'}
             </p>
             <p>
               {settings.updatedAt

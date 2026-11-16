@@ -5,9 +5,13 @@ export class UserMapper {
   static toEntity(raw: PrismaUser): User {
     return new User({
       id: raw.id,
-      name: raw.name,
+      firstName: raw.firstName,
+      lastName: raw.lastName,
       email: raw.email,
-      passwordHash: raw.passwordHash,
+      password: raw.password,
+      lastLoginAt: raw.lastLoginAt,
+      loginCount: raw.loginCount,
+      failLoginCount: raw.failLoginCount,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     });

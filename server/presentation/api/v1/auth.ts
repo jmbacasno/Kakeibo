@@ -51,4 +51,23 @@ router.get("/me", requireAuth, async (req: Request, res: Response) => {
   });
 });
 
+router.put("/account", requireAuth, async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const result = await authApplicationService.updateAccount(authReq.user!.id, req.body);
+  attachAuthCookie(req, res, result.token);
+  res.json({
+    success: true,
+    data: result,
+  });
+});
+
+router.put("/password", requireAuth, async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  await authApplicationService.changePassword(authReq.user!.id, req.body);
+  res.json({
+    success: true,
+    data: { message: "Password updated successfully." },
+  });
+});
+
 export default router;

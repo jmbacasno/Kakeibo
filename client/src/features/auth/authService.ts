@@ -7,14 +7,28 @@ export interface AuthSessionResponse {
 }
 
 export interface RegisterPayload {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
+  repeatPassword: string;
 }
 
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+export interface UpdateAccountPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  repeatPassword: string;
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthSessionResponse> {
@@ -39,6 +53,17 @@ export async function fetchMe(): Promise<{ user: User }> {
   }
 }
 
+export async function updateAccount(payload: UpdateAccountPayload): Promise<AuthSessionResponse> {
+  const res = await api.put<ApiSuccessResponse<AuthSessionResponse>>('/auth/account', payload);
+  setStoredToken(res.data.data.token);
+  return res.data.data;
+}
+
+export async function changePassword(payload: ChangePasswordPayload): Promise<{ message: string }> {
+  const res = await api.put<ApiSuccessResponse<{ message: string }>>('/auth/password', payload);
+  return res.data.data;
+}
+
 export async function logout(): Promise<void> {
   try {
     await api.post('/auth/logout');
@@ -53,6 +78,8 @@ export const authService = {
   register,
   login,
   fetchMe,
+  updateAccount,
+  changePassword,
   logout,
   getStoredToken,
   setStoredToken,

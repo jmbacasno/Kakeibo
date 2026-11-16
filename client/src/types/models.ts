@@ -3,8 +3,12 @@ export type PlanStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
 
 export interface User {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  lastLoginAt: string | null;
+  loginCount: number;
+  failLoginCount: number;
   createdAt: string | null;
   updatedAt: string | null;
 }

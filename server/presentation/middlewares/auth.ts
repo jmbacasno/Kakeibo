@@ -7,7 +7,8 @@ export const AUTH_COOKIE_NAME = "kakeibo_token";
 export interface AuthenticatedUserContext {
   id: number;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface AuthenticatedRequest extends Request {
@@ -49,7 +50,8 @@ export async function parseUserSession(
           (req as AuthenticatedRequest).user = {
             id: user.id,
             email: user.email,
-            name: user.name,
+            firstName: user.firstName,
+            lastName: user.lastName,
           };
         }
       }

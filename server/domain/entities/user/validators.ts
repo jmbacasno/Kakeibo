@@ -1,12 +1,21 @@
 import {
-  InvalidPasswordHashError,
+  InvalidFirstNameError,
+  InvalidLastNameError,
   InvalidUserEmailError,
-  InvalidUserNameError,
+  InvalidUserPasswordError,
 } from "./errors.js";
 
-export function validateUserName(name: string): void {
-  if (!name || name.trim().length < 2 || name.trim().length > 80) {
-    throw new InvalidUserNameError();
+export function validateFirstName(firstName: string): void {
+  const trimmed = firstName?.trim() || "";
+  if (trimmed.length < 1 || trimmed.length > 50) {
+    throw new InvalidFirstNameError();
+  }
+}
+
+export function validateLastName(lastName: string): void {
+  const trimmed = lastName?.trim() || "";
+  if (trimmed.length < 1 || trimmed.length > 50) {
+    throw new InvalidLastNameError();
   }
 }
 
@@ -16,8 +25,8 @@ export function validateUserEmail(email: string): void {
   }
 }
 
-export function validatePasswordHash(passwordHash: string): void {
-  if (!passwordHash || passwordHash.length === 0) {
-    throw new InvalidPasswordHashError();
+export function validateUserPassword(password: string): void {
+  if (!password || password.length === 0) {
+    throw new InvalidUserPasswordError();
   }
 }

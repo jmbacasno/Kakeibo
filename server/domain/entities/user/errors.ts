@@ -1,9 +1,16 @@
 import { DomainError } from "../../errors.js";
 
-export class InvalidUserNameError extends DomainError {
+export class InvalidFirstNameError extends DomainError {
   constructor() {
-    super("Name must be between 2 and 80 characters", "INVALID_USER_NAME");
-    this.name = "InvalidUserNameError";
+    super("First name must be between 1 and 50 characters", "INVALID_FIRST_NAME");
+    this.name = "InvalidFirstNameError";
+  }
+}
+
+export class InvalidLastNameError extends DomainError {
+  constructor() {
+    super("Last name must be between 1 and 50 characters", "INVALID_LAST_NAME");
+    this.name = "InvalidLastNameError";
   }
 }
 
@@ -14,9 +21,9 @@ export class InvalidUserEmailError extends DomainError {
   }
 }
 
-export class InvalidPasswordHashError extends DomainError {
+export class InvalidUserPasswordError extends DomainError {
   constructor() {
-    super("Password hash cannot be empty", "INVALID_PASSWORD_HASH");
-    this.name = "InvalidPasswordHashError";
+    super("Password cannot be empty", "INVALID_USER_PASSWORD");
+    this.name = "InvalidUserPasswordError";
   }
 }

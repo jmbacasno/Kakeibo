@@ -4,8 +4,14 @@ import { DEFAULT_USER_SETTINGS, UserSettings } from "../../domain/entities/userS
 import { UnitOfWorkInterface } from "../../domain/repositories/unitOfWorkInterface.js";
 import { PasswordHasherInterface } from "../../domain/services/passwordHasherInterface.js";
 import { TokenServiceInterface } from "../../domain/services/tokenServiceInterface.js";
-import { AuthDTO, loginSchema, registerSchema } from "../dtos/userDTO.js";
-import { AuthenticationError, ConflictError, NotFoundError } from "../errors.js";
+import {
+  AuthDTO,
+  changePasswordSchema,
+  loginSchema,
+  registerSchema,
+  updateAccountSchema,
+} from "../dtos/userDTO.js";
+import { AuthenticationError, ConflictError, NotFoundError, ValidationError } from "../errors.js";
 import { parseDTO } from "../validation.js";
 import { DEFAULT_KAKEIBO_CATEGORIES } from "./defaultCategoryTemplates.js";
 
@@ -21,12 +27,18 @@ export class AuthService {
     private readonly tokenService: TokenServiceInterface
   ) {}
 
-  private signUserToken(user: { id: number | null; email: string; name: string }): string {
+  private signUserToken(user: {
+    id: number | null;
+    email: string;
+    firstName: string;
+    lastName: string;
+  }): string {
     return this.tokenService.generateToken({
       sub: String(user.id),
       id: user.id,
       email: user.email,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
   }
 
@@ -44,9 +56,13 @@ export class AuthService {
     const createdUser = await this.uow.runInTransaction(async (txUow) => {
       const userEntity = new User({
         id: null,
-        name: input.name,
+        firstName: input.firstName,
+        lastName: input.lastName,
         email: input.email,
-        passwordHash,
+        password: passwordHash,
+        lastLoginAt: now,
+        loginCount: 1,
+        failLoginCount: 0,
         createdAt: now,
         updatedAt: now,
       });
@@ -98,14 +114,16 @@ export class AuthService {
       throw new AuthenticationError("Invalid email/username or password.");
     }
 
-    const valid = await this.passwordHasher.compare(input.password, user.passwordHash);
+    const valid = await this.passwordHasher.compare(input.password, user.password);
     if (!valid) {
+      await this.uow.users.recordFailedLogin(user.id!);
       throw new AuthenticationError("Invalid email/username or password.");
     }
 
-    const token = this.signUserToken(user);
+    const updatedUser = await this.uow.users.recordSuccessfulLogin(user.id!, new Date());
+    const token = this.signUserToken(updatedUser);
     return {
-      user: AuthDTO.fromEntity(user),
+      user: AuthDTO.fromEntity(updatedUser),
       token,
     };
   }
@@ -116,5 +134,69 @@ export class AuthService {
       throw new NotFoundError("User account not found.");
     }
     return AuthDTO.fromEntity(user);
+  }
+
+  async updateAccount(userId: number, rawData: unknown): Promise<AuthSessionResult> {
+    const input = parseDTO(updateAccountSchema, rawData);
+    const user = await this.uow.users.findById(userId);
+    if (!user) {
+      throw new NotFoundError("User account not found.");
+    }
+
+    if (input.email !== user.email) {
+      const existing = await this.uow.users.findByEmail(input.email);
+      if (existing && existing.id !== userId) {
+        throw new ConflictError("An account with this email already exists.");
+      }
+    }
+
+    const updatedEntity = new User({
+      id: user.id,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      password: user.password,
+      lastLoginAt: user.lastLoginAt,
+      loginCount: user.loginCount,
+      failLoginCount: user.failLoginCount,
+      createdAt: user.createdAt,
+      updatedAt: new Date(),
+    });
+
+    const saved = await this.uow.users.update(updatedEntity);
+    const token = this.signUserToken(saved);
+    return {
+      user: AuthDTO.fromEntity(saved),
+      token,
+    };
+  }
+
+  async changePassword(userId: number, rawData: unknown): Promise<void> {
+    const input = parseDTO(changePasswordSchema, rawData);
+    const user = await this.uow.users.findById(userId);
+    if (!user) {
+      throw new NotFoundError("User account not found.");
+    }
+
+    const matchesCurrent = await this.passwordHasher.compare(input.currentPassword, user.password);
+    if (!matchesCurrent) {
+      throw new ValidationError("Current password is incorrect.");
+    }
+
+    const nextHash = await this.passwordHasher.hash(input.newPassword);
+    const updatedEntity = new User({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: nextHash,
+      lastLoginAt: user.lastLoginAt,
+      loginCount: user.loginCount,
+      failLoginCount: user.failLoginCount,
+      createdAt: user.createdAt,
+      updatedAt: new Date(),
+    });
+
+    await this.uow.users.update(updatedEntity);
   }
 }

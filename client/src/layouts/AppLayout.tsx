@@ -13,6 +13,7 @@ import {
   Settings,
   Tags,
   User,
+  UserCircle,
   X,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
@@ -35,6 +36,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/categories', label: 'Categories', icon: Tags },
   { to: '/notes', label: 'Notes', icon: NotebookPen },
   { to: '/reflections', label: 'Reflections', icon: BookOpenCheck },
+  { to: '/account', label: 'Account', icon: UserCircle },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -45,6 +47,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/categories': 'Categories',
   '/notes': 'Personal Notes',
   '/reflections': 'Monthly Reflections',
+  '/account': 'Account',
   '/settings': 'Settings',
 };
 
@@ -206,8 +209,8 @@ export default function AppLayout() {
                   className="inline-flex items-center gap-2 px-3 py-2 bg-surface border border-line-strong rounded-lg text-sm font-medium text-ink hover:bg-subtle transition-colors whitespace-nowrap"
                 >
                   <User className="w-4 h-4 text-ink-muted" />
-                  <span className="hidden sm:inline max-w-[120px] truncate">
-                    {user?.name || 'Account'}
+                  <span className="hidden sm:inline max-w-[140px] truncate">
+                    {user ? `${user.firstName} ${user.lastName}` : 'Account'}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-ink-muted" />
                 </button>
@@ -219,10 +222,22 @@ export default function AppLayout() {
                   >
                     <div className="px-4 py-2 border-b border-line">
                       <p className="text-sm font-semibold text-ink truncate">
-                        {user?.name}
+                        {user ? `${user.firstName} ${user.lastName}` : 'Account'}
                       </p>
                       <p className="text-xs text-ink-muted truncate">{user?.email}</p>
                     </div>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        navigate('/account');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-sm text-ink-secondary hover:bg-subtle hover:text-ink transition-colors"
+                    >
+                      <UserCircle className="w-4 h-4" />
+                      <span>Account</span>
+                    </button>
                     <button
                       type="button"
                       role="menuitem"

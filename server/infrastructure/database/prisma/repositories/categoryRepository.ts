@@ -27,12 +27,11 @@ export class CategoryRepository implements CategoryRepositoryInterface {
   ): Promise<CategoryEntity[]> {
     const where: Prisma.CategoryWhereInput = { userId };
     if (filters?.type) where.type = filters.type;
-    if (filters?.isActive !== undefined) where.isActive = filters.isActive;
 
     const rows = await this.client.category.findMany({
       where,
       include: categoryCountInclude,
-      orderBy: [{ type: "asc" }, { isDefault: "desc" }, { name: "asc" }],
+      orderBy: [{ type: "asc" }, { id: "asc" }],
     });
     return rows.map(CategoryMapper.toEntity);
   }
@@ -81,9 +80,8 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       data: {
         userId: category.userId,
         name: category.name.trim(),
+        description: category.description,
         type: category.type,
-        isDefault: category.isDefault,
-        isActive: category.isActive,
       },
       include: categoryCountInclude,
     });
@@ -103,28 +101,24 @@ export class CategoryRepository implements CategoryRepositoryInterface {
       create: {
         userId: category.userId,
         name: category.name.trim(),
+        description: category.description,
         type: category.type,
-        isDefault: true,
-        isActive: true,
       },
       include: categoryCountInclude,
     });
     return CategoryMapper.toEntity(saved);
   }
 
-  async updateName(id: number, name: string): Promise<CategoryEntity> {
+  async update(
+    id: number,
+    data: { name: string; description: string | null }
+  ): Promise<CategoryEntity> {
     const updated = await this.client.category.update({
       where: { id },
-      data: { name: name.trim() },
-      include: categoryCountInclude,
-    });
-    return CategoryMapper.toEntity(updated);
-  }
-
-  async updateStatus(id: number, isActive: boolean): Promise<CategoryEntity> {
-    const updated = await this.client.category.update({
-      where: { id },
-      data: { isActive },
+      data: {
+        name: data.name.trim(),
+        description: data.description,
+      },
       include: categoryCountInclude,
     });
     return CategoryMapper.toEntity(updated);

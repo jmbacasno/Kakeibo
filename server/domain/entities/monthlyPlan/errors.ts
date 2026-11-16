@@ -20,10 +20,3 @@ export class NegativePlanAmountError extends DomainError {
     this.name = "NegativePlanAmountError";
   }
 }
-
-export class InvalidPlanStatusError extends DomainError {
-  constructor() {
-    super("Plan status must be DRAFT, ACTIVE, or COMPLETED", "INVALID_PLAN_STATUS");
-    this.name = "InvalidPlanStatusError";
-  }
-}

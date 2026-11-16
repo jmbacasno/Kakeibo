@@ -1,4 +1,5 @@
 import {
+  CategoryDescriptionTooLongError,
   CategoryNameTooLongError,
   EmptyCategoryNameError,
   InvalidCategoryTypeError,
@@ -11,6 +12,12 @@ export function validateCategoryName(name: string): void {
   }
   if (name.trim().length > 50) {
     throw new CategoryNameTooLongError();
+  }
+}
+
+export function validateCategoryDescription(description: string | null): void {
+  if (description !== null && description.trim().length > 255) {
+    throw new CategoryDescriptionTooLongError();
   }
 }
 

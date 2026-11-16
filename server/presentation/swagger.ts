@@ -9,14 +9,12 @@ import {
   createCategorySchema,
   listCategoriesQuerySchema,
   updateCategorySchema,
-  updateCategoryStatusSchema,
 } from "../application/dtos/categoryDTO.js";
 import { dashboardQuerySchema } from "../application/dtos/dashboardDTO.js";
 import {
   createPlanSchema,
   currentPlanQuerySchema,
   updatePlanSchema,
-  updatePlanStatusSchema,
 } from "../application/dtos/monthlyPlanDTO.js";
 import {
   createReflectionSchema,
@@ -244,41 +242,36 @@ const openApiSchema = {
     schemas: {
       // --- Input DTO Schemas (derived directly from application Zod schemas) ---
       RegisterInput: zodToOpenApiSchema(registerSchema, undefined, {
-        firstName: "Haruki",
-        lastName: "Tanaka",
-        email: "haruki@example.com",
-        password: "strongpassword123",
-        repeatPassword: "strongpassword123",
+        firstName: "Joe",
+        lastName: "Doe",
+        email: "johndoe@gmail.com",
+        password: "johndoe123",
+        repeatPassword: "johndoe123",
       }),
       LoginInput: zodToOpenApiSchema(loginSchema, undefined, {
-        email: "admin",
-        password: "admin",
+        email: "johndoe@gmail.com",
+        password: "johndoe123",
       }),
       UpdateAccountInput: zodToOpenApiSchema(updateAccountSchema, undefined, {
-        firstName: "Haruki",
-        lastName: "Tanaka",
-        email: "haruki@example.com",
+        firstName: "Joe",
+        lastName: "Doe",
+        email: "johndoe@gmail.com",
       }),
       ChangePasswordInput: zodToOpenApiSchema(changePasswordSchema, undefined, {
-        currentPassword: "strongpassword123",
-        newPassword: "newstrongpassword456",
-        repeatPassword: "newstrongpassword456",
+        currentPassword: "johndoe123",
+        newPassword: "newpassword123",
+        repeatPassword: "newpassword123",
       }),
       CreatePlanInput: zodToOpenApiSchema(createPlanSchema, undefined, {
         month: 11,
         year: 2026,
         plannedIncome: 4500,
         savingsGoal: 900,
-        status: "ACTIVE",
         budgets: [{ categoryId: 1, allocatedAmount: 1200 }],
       }),
       UpdatePlanInput: zodToOpenApiSchema(updatePlanSchema, undefined, {
         plannedIncome: 4800,
         savingsGoal: 1000,
-        status: "ACTIVE",
-      }),
-      UpdatePlanStatusInput: zodToOpenApiSchema(updatePlanStatusSchema, undefined, {
-        status: "COMPLETED",
       }),
       BulkUpdateBudgetsInput: zodToOpenApiSchema(bulkUpdateBudgetsSchema, undefined, {
         budgets: [
@@ -291,13 +284,12 @@ const openApiSchema = {
       }),
       CreateCategoryInput: zodToOpenApiSchema(createCategorySchema, undefined, {
         name: "Coffee & Tea",
+        description: "Specialty drinks and cafe visits",
         type: "EXPENSE",
       }),
       UpdateCategoryInput: zodToOpenApiSchema(updateCategorySchema, undefined, {
         name: "Cafes & Matcha",
-      }),
-      UpdateCategoryStatusInput: zodToOpenApiSchema(updateCategoryStatusSchema, undefined, {
-        isActive: false,
+        description: "Coffee shops and matcha treats",
       }),
       CreateTransactionInput: zodToOpenApiSchema(
         createTransactionSchema,
@@ -419,9 +411,9 @@ const openApiSchema = {
         type: "object",
         properties: {
           id: { type: "integer", example: 1 },
-          firstName: { type: "string", example: "System" },
-          lastName: { type: "string", example: "Administrator" },
-          email: { type: "string", example: "admin" },
+          firstName: { type: "string", example: "Joe" },
+          lastName: { type: "string", example: "Doe" },
+          email: { type: "string", example: "johndoe@gmail.com" },
           lastLoginAt: { type: "string", format: "date-time", nullable: true },
           loginCount: { type: "integer", example: 3 },
           failLoginCount: { type: "integer", example: 0 },
@@ -453,10 +445,13 @@ const openApiSchema = {
         properties: {
           id: { type: "integer", example: 1 },
           userId: { type: "integer", example: 1 },
-          name: { type: "string", example: "Groceries & Household" },
+          name: { type: "string", example: "Needs" },
+          description: {
+            type: "string",
+            nullable: true,
+            example: "Essential living expenses",
+          },
           type: { type: "string", enum: ["INCOME", "EXPENSE"] },
-          isDefault: { type: "boolean", example: true },
-          isActive: { type: "boolean", example: true },
           createdAt: { type: "string", format: "date-time", nullable: true },
           updatedAt: { type: "string", format: "date-time", nullable: true },
           _count: {
@@ -467,7 +462,7 @@ const openApiSchema = {
             },
           },
         },
-        required: ["id", "userId", "name", "type", "isDefault", "isActive", "createdAt", "updatedAt"],
+        required: ["id", "userId", "name", "description", "type", "createdAt", "updatedAt"],
       },
       PlanSummaryRef: {
         type: "object",
@@ -484,17 +479,14 @@ const openApiSchema = {
           id: { type: "integer", example: 1 },
           month: { type: "integer", example: 11 },
           year: { type: "integer", example: 2026 },
-          status: { type: "string", enum: ["DRAFT", "ACTIVE", "COMPLETED"] },
         },
-        required: ["id", "month", "year", "status"],
+        required: ["id", "month", "year"],
       },
       CategoryBreakdownItem: {
         type: "object",
         properties: {
           categoryId: { type: "integer" },
           categoryName: { type: "string" },
-          isDefault: { type: "boolean" },
-          isActive: { type: "boolean" },
           allocatedAmount: { type: "number" },
           actualSpent: { type: "number" },
           remainingBudget: { type: "number" },
@@ -505,8 +497,6 @@ const openApiSchema = {
         required: [
           "categoryId",
           "categoryName",
-          "isDefault",
-          "isActive",
           "allocatedAmount",
           "actualSpent",
           "remainingBudget",
@@ -597,7 +587,6 @@ const openApiSchema = {
           year: { type: "integer", example: 2026 },
           plannedIncome: { type: "number", example: 4500 },
           savingsGoal: { type: "number", example: 900 },
-          status: { type: "string", enum: ["DRAFT", "ACTIVE", "COMPLETED"] },
           createdAt: { type: "string", format: "date-time", nullable: true },
           updatedAt: { type: "string", format: "date-time", nullable: true },
           budgets: {
@@ -613,7 +602,6 @@ const openApiSchema = {
           "year",
           "plannedIncome",
           "savingsGoal",
-          "status",
           "createdAt",
           "updatedAt",
           "budgets",
@@ -706,9 +694,8 @@ const openApiSchema = {
           id: { type: "integer", example: 1 },
           month: { type: "integer", example: 11 },
           year: { type: "integer", example: 2026 },
-          status: { type: "string", enum: ["DRAFT", "ACTIVE", "COMPLETED"] },
         },
-        required: ["id", "month", "year", "status"],
+        required: ["id", "month", "year"],
       },
       DashboardData: {
         type: "object",
@@ -999,28 +986,6 @@ const openApiSchema = {
         },
       },
     },
-    "/plans/{id}/status": {
-      patch: {
-        summary: "Update monthly plan status (DRAFT, ACTIVE, or COMPLETED)",
-        tags: ["Plans"],
-        security: authSecurity,
-        parameters: [idPathParam],
-        requestBody: jsonRequestBody("UpdatePlanStatusInput"),
-        responses: {
-          200: successEnvelope(
-            {
-              type: "object",
-              properties: { plan: refSchema("MonthlyPlan") },
-              required: ["plan"],
-            },
-            "Updated monthly plan status"
-          ),
-          400: validationErrorRef,
-          401: unauthorizedErrorRef,
-          404: notFoundErrorRef,
-        },
-      },
-    },
     "/plans/{id}/budgets": {
       get: {
         summary: "List category budgets for a monthly plan",
@@ -1088,12 +1053,11 @@ const openApiSchema = {
     },
     "/categories": {
       get: {
-        summary: "List user categories with optional type and isActive filters",
+        summary: "List user categories with optional type filter",
         tags: ["Categories"],
         security: authSecurity,
         parameters: zodQueryToParameters(listCategoriesQuerySchema, {
           type: "Filter by category type (INCOME or EXPENSE).",
-          isActive: "Filter by active status ('true' or 'false').",
         }),
         responses: {
           200: successEnvelope(
@@ -1111,7 +1075,7 @@ const openApiSchema = {
         },
       },
       post: {
-        summary: "Create custom income or expense category",
+        summary: "Create income or expense category",
         tags: ["Categories"],
         security: authSecurity,
         requestBody: jsonRequestBody("CreateCategoryInput"),
@@ -1151,7 +1115,7 @@ const openApiSchema = {
         },
       },
       put: {
-        summary: "Rename a category",
+        summary: "Update a category's name and description",
         tags: ["Categories"],
         security: authSecurity,
         parameters: [idPathParam],
@@ -1172,35 +1136,12 @@ const openApiSchema = {
         },
       },
       delete: {
-        summary: "Delete a custom category (if not in use)",
+        summary: "Delete a category and any associated budgets or transactions",
         tags: ["Categories"],
         security: authSecurity,
         parameters: [idPathParam],
         responses: {
           200: successEnvelope(refSchema("MessageData"), "Category deleted"),
-          400: validationErrorRef,
-          401: unauthorizedErrorRef,
-          404: notFoundErrorRef,
-          409: conflictErrorRef,
-        },
-      },
-    },
-    "/categories/{id}/status": {
-      patch: {
-        summary: "Activate or deactivate a category",
-        tags: ["Categories"],
-        security: authSecurity,
-        parameters: [idPathParam],
-        requestBody: jsonRequestBody("UpdateCategoryStatusInput"),
-        responses: {
-          200: successEnvelope(
-            {
-              type: "object",
-              properties: { category: refSchema("Category") },
-              required: ["category"],
-            },
-            "Updated category status"
-          ),
           400: validationErrorRef,
           401: unauthorizedErrorRef,
           404: notFoundErrorRef,

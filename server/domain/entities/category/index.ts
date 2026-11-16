@@ -1,4 +1,5 @@
 import {
+  validateCategoryDescription,
   validateCategoryName,
   validateCategoryType,
   validateCategoryUserId,
@@ -15,9 +16,8 @@ export interface CategoryEntity {
   id: number | null;
   userId: number;
   name: string;
+  description: string | null;
   type: CategoryType;
-  isDefault: boolean;
-  isActive: boolean;
   createdAt: Date | null;
   updatedAt: Date | null;
   _count?: CategoryUsageCounts;
@@ -27,9 +27,8 @@ export class Category implements CategoryEntity {
   id: number | null;
   userId: number;
   name: string;
+  description: string | null;
   type: CategoryType;
-  isDefault: boolean;
-  isActive: boolean;
   createdAt: Date | null;
   updatedAt: Date | null;
   _count?: CategoryUsageCounts;
@@ -38,9 +37,9 @@ export class Category implements CategoryEntity {
     this.id = data.id;
     this.userId = data.userId;
     this.name = data.name.trim();
+    this.description =
+      data.description && data.description.trim().length > 0 ? data.description.trim() : null;
     this.type = data.type;
-    this.isDefault = data.isDefault;
-    this.isActive = data.isActive;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
     this._count = data._count;
@@ -51,18 +50,17 @@ export class Category implements CategoryEntity {
   validate(): void {
     validateCategoryUserId(this.userId);
     validateCategoryName(this.name);
+    validateCategoryDescription(this.description);
     validateCategoryType(this.type);
   }
 
-  updateName(name: string): this {
+  updateDetails(name: string, description: string | null): this {
+    const normalizedDesc =
+      description && description.trim().length > 0 ? description.trim() : null;
     validateCategoryName(name);
+    validateCategoryDescription(normalizedDesc);
     this.name = name.trim();
-    this.updatedAt = new Date();
-    return this;
-  }
-
-  setStatus(isActive: boolean): this {
-    this.isActive = isActive;
+    this.description = normalizedDesc;
     this.updatedAt = new Date();
     return this;
   }

@@ -1,4 +1,3 @@
-import { PlanStatus } from "../../domain/entities/monthlyPlan/index.js";
 import { UnitOfWorkInterface } from "../../domain/repositories/unitOfWorkInterface.js";
 import { PlanSummaryResult } from "../../domain/services/financialCalculator.js";
 import {
@@ -6,7 +5,6 @@ import {
   currentPlanQuerySchema,
   MonthlyPlanDTO,
   updatePlanSchema,
-  updatePlanStatusSchema,
 } from "../dtos/monthlyPlanDTO.js";
 import { ConflictError, NotFoundError, ValidationError } from "../errors.js";
 import { parseDTO } from "../validation.js";
@@ -101,7 +99,6 @@ export class MonthlyPlanService {
         year: input.year,
         plannedIncome: input.plannedIncome,
         savingsGoal: input.savingsGoal,
-        status: input.status as PlanStatus,
       });
 
       for (const b of normalizedBudgets) {
@@ -133,20 +130,19 @@ export class MonthlyPlanService {
           userId,
           input.budgets
         );
+        await txUow.categoryBudgets.deleteMissingForPlan(
+          planId,
+          normalizedBudgets.map((b) => b.categoryId)
+        );
         for (const b of normalizedBudgets) {
           await txUow.categoryBudgets.upsert(planId, b.categoryId, b.allocatedAmount);
         }
       }
 
-      if (
-        input.plannedIncome !== undefined ||
-        input.savingsGoal !== undefined ||
-        input.status !== undefined
-      ) {
+      if (input.plannedIncome !== undefined || input.savingsGoal !== undefined) {
         await txUow.monthlyPlans.update(planId, {
           plannedIncome: input.plannedIncome,
           savingsGoal: input.savingsGoal,
-          status: input.status as PlanStatus | undefined,
         });
       }
 
@@ -158,21 +154,5 @@ export class MonthlyPlanService {
     });
 
     return MonthlyPlanDTO.fromEntity(updatedPlan);
-  }
-
-  async updatePlanStatus(
-    userId: number,
-    planId: number,
-    rawData: unknown
-  ): Promise<MonthlyPlanDTO> {
-    const input = parseDTO(updatePlanStatusSchema, rawData);
-
-    const existing = await this.uow.monthlyPlans.findByIdAndUserId(planId, userId);
-    if (!existing) {
-      throw new NotFoundError("Monthly plan not found.");
-    }
-
-    const updated = await this.uow.monthlyPlans.updateStatus(planId, input.status as PlanStatus);
-    return MonthlyPlanDTO.fromEntity(updated);
   }
 }

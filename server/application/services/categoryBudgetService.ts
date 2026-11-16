@@ -51,6 +51,8 @@ export class CategoryBudgetService {
         }
       }
 
+      await txUow.categoryBudgets.deleteMissingForPlan(planId, categoryIds);
+
       for (const [categoryId, allocatedAmount] of dedupedMap.entries()) {
         await txUow.categoryBudgets.upsert(planId, categoryId, allocatedAmount);
       }

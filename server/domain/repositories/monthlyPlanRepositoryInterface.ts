@@ -1,10 +1,9 @@
-import { MonthlyPlanEntity, PlanStatus } from "../entities/monthlyPlan/index.js";
+import { MonthlyPlanEntity } from "../entities/monthlyPlan/index.js";
 
 export interface AvailablePlanPeriod {
   id: number;
   month: number;
   year: number;
-  status: string;
 }
 
 export interface MonthlyPlanRepositoryInterface {
@@ -22,15 +21,12 @@ export interface MonthlyPlanRepositoryInterface {
     year: number;
     plannedIncome: number;
     savingsGoal: number;
-    status: PlanStatus;
   }): Promise<MonthlyPlanEntity>;
   update(
     id: number,
     data: {
       plannedIncome?: number;
       savingsGoal?: number;
-      status?: PlanStatus;
     }
   ): Promise<MonthlyPlanEntity>;
-  updateStatus(id: number, status: PlanStatus): Promise<MonthlyPlanEntity>;
 }

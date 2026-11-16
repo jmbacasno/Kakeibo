@@ -1,5 +1,4 @@
 export type CategoryType = 'INCOME' | 'EXPENSE';
-export type PlanStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
 
 export interface User {
   id: number;
@@ -22,9 +21,8 @@ export interface Category {
   id: number;
   userId: number;
   name: string;
+  description: string | null;
   type: CategoryType;
-  isDefault: boolean;
-  isActive: boolean;
   createdAt: string | null;
   updatedAt: string | null;
   _count?: CategoryUsageCounts;
@@ -41,8 +39,6 @@ export interface CategoryBudget {
 export interface CategoryBreakdownItem {
   categoryId: number;
   categoryName: string;
-  isDefault: boolean;
-  isActive: boolean;
   allocatedAmount: number;
   actualSpent: number;
   remainingBudget: number;
@@ -75,7 +71,6 @@ export interface MonthlyPlan {
   year: number;
   plannedIncome: number;
   savingsGoal: number;
-  status: PlanStatus;
   createdAt: string | null;
   updatedAt: string | null;
   budgets: CategoryBudget[];
@@ -129,7 +124,6 @@ export interface MonthlyReflection {
     id: number;
     month: number;
     year: number;
-    status: string;
   } | null;
   financialSummary?: PlanSummary | null;
 }
@@ -138,7 +132,6 @@ export interface AvailableMonthItem {
   id: number;
   month: number;
   year: number;
-  status: PlanStatus;
 }
 
 export interface DashboardData {

@@ -1,4 +1,3 @@
-import { PlanStatus } from "../../domain/entities/monthlyPlan/index.js";
 import { UnitOfWorkInterface } from "../../domain/repositories/unitOfWorkInterface.js";
 import { DashboardDTO, dashboardQuerySchema } from "../dtos/dashboardDTO.js";
 import { MonthlyPlanDTO } from "../dtos/monthlyPlanDTO.js";
@@ -23,7 +22,6 @@ export class DashboardService {
       id: p.id,
       month: p.month,
       year: p.year,
-      status: p.status as PlanStatus,
     }));
 
     if (!plan) {

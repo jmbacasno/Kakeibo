@@ -1,5 +1,5 @@
 import api from '../../services/api';
-import { ApiSuccessResponse, MonthlyPlan, PlanStatus } from '../../types/models';
+import { ApiSuccessResponse, MonthlyPlan } from '../../types/models';
 
 export interface PlanBudgetInput {
   categoryId: number;
@@ -11,14 +11,12 @@ export interface CreatePlanPayload {
   year: number;
   plannedIncome: number;
   savingsGoal: number;
-  status?: PlanStatus;
   budgets?: PlanBudgetInput[];
 }
 
 export interface UpdatePlanPayload {
   plannedIncome?: number;
   savingsGoal?: number;
-  status?: PlanStatus;
   budgets?: PlanBudgetInput[];
 }
 
@@ -49,13 +47,6 @@ export async function update(id: number, data: UpdatePlanPayload): Promise<Month
   return res.data.data.plan;
 }
 
-export async function updateStatus(id: number, status: PlanStatus): Promise<MonthlyPlan> {
-  const res = await api.patch<ApiSuccessResponse<{ plan: MonthlyPlan }>>(`/plans/${id}/status`, {
-    status,
-  });
-  return res.data.data.plan;
-}
-
 export async function saveBudgets(id: number, budgets: PlanBudgetInput[]): Promise<MonthlyPlan> {
   const res = await api.put<ApiSuccessResponse<{ plan: MonthlyPlan }>>(`/plans/${id}/budgets`, {
     budgets,
@@ -68,7 +59,6 @@ export const planService = {
   fetchCurrent,
   create,
   update,
-  updateStatus,
   saveBudgets,
 };
 

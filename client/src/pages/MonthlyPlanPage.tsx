@@ -5,12 +5,13 @@ import {
   CheckCircle2,
   Plus,
   Save,
+  Trash2,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { CardSkeleton } from '../components/LoadingSkeleton';
 import Modal from '../components/Modal';
 import { useToast } from '../components/ToastProvider';
-import { createCategory, fetchCategories } from '../features/categories/categorySlice';
+import { fetchCategories } from '../features/categories/categorySlice';
 import {
   createPlan,
   fetchCurrentPlan,
@@ -18,7 +19,7 @@ import {
   setSelectedPeriod,
   updatePlan,
 } from '../features/plans/planSlice';
-import { Category, MonthlyPlan, PlanStatus } from '../types/models';
+import { Category, MonthlyPlan } from '../types/models';
 import {
   formatCurrency,
   formatMonthYear,
@@ -26,36 +27,30 @@ import {
   MONTH_NAMES,
 } from '../utils/formatters';
 
+interface AddedBudgetDraft {
+  categoryId: number;
+  allocatedAmount: string;
+}
+
 interface PlanEditorFormProps {
   selectedMonth: number;
   selectedYear: number;
   currentPlan: MonthlyPlan | null;
-  planExpenseCategories: Category[];
+  expenseCategories: Category[];
   saving: boolean;
-  onOpenNewCategory: () => void;
 }
 
 function PlanEditorForm({
   selectedMonth,
   selectedYear,
   currentPlan,
-  planExpenseCategories,
+  expenseCategories,
   saving,
-  onOpenNewCategory,
 }: PlanEditorFormProps) {
   const dispatch = useAppDispatch();
   const toast = useToast();
   const activeCurrency = useAppSelector((state) => state.settings.data?.currency || 'USD');
   const isZeroDecimal = activeCurrency === 'JPY';
-
-  const initialBudgets = useMemo(() => {
-    const map: Record<number, string> = {};
-    for (const cat of planExpenseCategories) {
-      const match = currentPlan?.budgets?.find((b) => b.categoryId === cat.id);
-      map[cat.id] = match ? String(match.allocatedAmount) : '0';
-    }
-    return map;
-  }, [currentPlan, planExpenseCategories]);
 
   const [plannedIncome, setPlannedIncome] = useState<string>(
     currentPlan ? String(currentPlan.plannedIncome ?? 0) : ''
@@ -63,9 +58,84 @@ function PlanEditorForm({
   const [savingsGoal, setSavingsGoal] = useState<string>(
     currentPlan ? String(currentPlan.savingsGoal ?? 0) : ''
   );
-  const [status, setStatus] = useState<PlanStatus>(currentPlan?.status || 'ACTIVE');
-  const [budgetInputs, setBudgetInputs] = useState<Record<number, string>>(initialBudgets);
+  const [addedBudgets, setAddedBudgets] = useState<AddedBudgetDraft[]>(() =>
+    (currentPlan?.budgets || []).map((b) => ({
+      categoryId: b.categoryId,
+      allocatedAmount: String(b.allocatedAmount),
+    }))
+  );
   const [formError, setFormError] = useState('');
+
+  // Modal state for "New Category Budget"
+  const [budgetModalOpen, setBudgetModalOpen] = useState(false);
+  const [modalCategoryId, setModalCategoryId] = useState<string>('');
+  const [modalAllocatedAmount, setModalAllocatedAmount] = useState<string>('');
+  const [modalError, setModalError] = useState<string>('');
+
+  const categoryById = useMemo(() => {
+    const map = new Map<number, Category>();
+    for (const cat of expenseCategories) {
+      map.set(cat.id, cat);
+    }
+    for (const b of currentPlan?.budgets || []) {
+      if (b.category && !map.has(b.categoryId)) {
+        map.set(b.categoryId, b.category);
+      }
+    }
+    return map;
+  }, [expenseCategories, currentPlan]);
+
+  const unaddedExpenseCategories = useMemo(() => {
+    const addedIds = new Set(addedBudgets.map((b) => b.categoryId));
+    return expenseCategories.filter((c) => !addedIds.has(c.id));
+  }, [expenseCategories, addedBudgets]);
+
+  const openNewBudgetModal = () => {
+    setModalError('');
+    const firstAvailable = unaddedExpenseCategories[0];
+    setModalCategoryId(firstAvailable ? String(firstAvailable.id) : '');
+    setModalAllocatedAmount('');
+    setBudgetModalOpen(true);
+  };
+
+  const handleAddCategoryBudget = (e: FormEvent) => {
+    e.preventDefault();
+    setModalError('');
+
+    const catIdNum = Number(modalCategoryId);
+    if (!modalCategoryId || !Number.isInteger(catIdNum) || catIdNum <= 0) {
+      setModalError('Please select a category.');
+      return;
+    }
+    if (addedBudgets.some((b) => b.categoryId === catIdNum)) {
+      setModalError('This category is already in your budget list.');
+      return;
+    }
+
+    const parsedAmount = Number(modalAllocatedAmount === '' ? NaN : modalAllocatedAmount);
+    if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
+      setModalError('Allocated amount must be 0 or greater.');
+      return;
+    }
+
+    setAddedBudgets((prev) => [
+      ...prev,
+      { categoryId: catIdNum, allocatedAmount: String(parsedAmount) },
+    ]);
+    setBudgetModalOpen(false);
+  };
+
+  const handleUpdateBudgetAmount = (categoryId: number, value: string) => {
+    setAddedBudgets((prev) =>
+      prev.map((item) =>
+        item.categoryId === categoryId ? { ...item, allocatedAmount: value } : item
+      )
+    );
+  };
+
+  const handleRemoveBudget = (categoryId: number) => {
+    setAddedBudgets((prev) => prev.filter((item) => item.categoryId !== categoryId));
+  };
 
   const reviewMetrics = useMemo(() => {
     const toCents = (v: string | number) => Math.round((Number(v) || 0) * 100);
@@ -74,9 +144,8 @@ function PlanEditorForm({
     const availableCents = incomeCents - goalCents;
 
     let allocatedCents = 0;
-    for (const cat of planExpenseCategories) {
-      const raw = budgetInputs[cat.id] ?? '0';
-      allocatedCents += Math.max(0, toCents(raw));
+    for (const item of addedBudgets) {
+      allocatedCents += Math.max(0, toCents(item.allocatedAmount));
     }
 
     const differenceCents = allocatedCents - availableCents;
@@ -88,7 +157,7 @@ function PlanEditorForm({
       difference: differenceCents / 100,
       exceedsAvailable: differenceCents > 0,
     };
-  }, [plannedIncome, savingsGoal, budgetInputs, planExpenseCategories]);
+  }, [plannedIncome, savingsGoal, addedBudgets]);
 
   const handleSavePlan = async (e: FormEvent) => {
     e.preventDefault();
@@ -106,14 +175,14 @@ function PlanEditorForm({
     }
 
     const budgetsPayload: Array<{ categoryId: number; allocatedAmount: number }> = [];
-    for (const cat of planExpenseCategories) {
-      const raw = budgetInputs[cat.id];
-      const amt = Number(raw === '' || raw === undefined ? 0 : raw);
+    for (const item of addedBudgets) {
+      const cat = categoryById.get(item.categoryId);
+      const amt = Number(item.allocatedAmount === '' ? 0 : item.allocatedAmount);
       if (!Number.isFinite(amt) || amt < 0) {
-        setFormError(`Budget for "${cat.name}" cannot be negative.`);
+        setFormError(`Budget for "${cat?.name || 'category'}" cannot be negative.`);
         return;
       }
-      budgetsPayload.push({ categoryId: cat.id, allocatedAmount: amt });
+      budgetsPayload.push({ categoryId: item.categoryId, allocatedAmount: amt });
     }
 
     if (currentPlan) {
@@ -123,7 +192,6 @@ function PlanEditorForm({
           data: {
             plannedIncome: incVal,
             savingsGoal: goalVal,
-            status,
             budgets: budgetsPayload,
           },
         })
@@ -141,7 +209,6 @@ function PlanEditorForm({
           year: selectedYear,
           plannedIncome: incVal,
           savingsGoal: goalVal,
-          status,
           budgets: budgetsPayload,
         })
       );
@@ -155,20 +222,20 @@ function PlanEditorForm({
   };
 
   return (
-    <form onSubmit={handleSavePlan} className="grid grid-cols-1 lg:grid-cols-12 gap-6" noValidate>
-      <div className="lg:col-span-8 space-y-6">
-        {formError && (
-          <div
-            role="alert"
-            className="rounded-lg bg-danger-bg border border-danger-line px-4 py-3 text-sm text-danger"
-          >
-            {formError}
-          </div>
-        )}
+    <>
+      <form onSubmit={handleSavePlan} className="grid grid-cols-1 lg:grid-cols-12 gap-6" noValidate>
+        <div className="lg:col-span-8 space-y-6">
+          {formError && (
+            <div
+              role="alert"
+              className="rounded-lg bg-danger-bg border border-danger-line px-4 py-3 text-sm text-danger"
+            >
+              {formError}
+            </div>
+          )}
 
-        <section className="bg-surface border border-line rounded-xl p-6 space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-            <div>
+          <section className="bg-surface border border-line rounded-xl p-6 space-y-5">
+            <div className="border-b border-line pb-4">
               <h3 className="text-sm font-semibold text-ink">
                 01. Income &amp; Savings Intention
               </h3>
@@ -177,235 +244,305 @@ function PlanEditorForm({
               </p>
             </div>
 
-            <div>
-              <label htmlFor="plan-status" className="sr-only">
-                Plan status
-              </label>
-              <select
-                id="plan-status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value as PlanStatus)}
-                className="px-3 py-1.5 text-xs font-medium bg-canvas border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text"
-              >
-                <option value="DRAFT">Status: Draft</option>
-                <option value="ACTIVE">Status: Active</option>
-                <option value="COMPLETED">Status: Completed</option>
-              </select>
-            </div>
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label
+                  htmlFor="planned-income"
+                  className="block text-xs font-medium text-ink-secondary mb-1.5"
+                >
+                  Expected monthly income ({activeCurrency})
+                </label>
+                <input
+                  id="planned-income"
+                  type="number"
+                  step={isZeroDecimal ? '1' : '0.01'}
+                  min="0"
+                  value={plannedIncome}
+                  onChange={(e) => setPlannedIncome(e.target.value)}
+                  placeholder={isZeroDecimal ? '0' : '0.00'}
+                  className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+                />
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label
-                htmlFor="planned-income"
-                className="block text-xs font-medium text-ink-secondary mb-1.5"
+              <div>
+                <label
+                  htmlFor="savings-goal"
+                  className="block text-xs font-medium text-ink-secondary mb-1.5"
+                >
+                  Monthly savings goal ({activeCurrency})
+                </label>
+                <input
+                  id="savings-goal"
+                  type="number"
+                  step={isZeroDecimal ? '1' : '0.01'}
+                  min="0"
+                  value={savingsGoal}
+                  onChange={(e) => setSavingsGoal(e.target.value)}
+                  placeholder={isZeroDecimal ? '0' : '0.00'}
+                  className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="bg-surface border border-line rounded-xl p-6 space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+              <div>
+                <h3 className="text-sm font-semibold text-ink">
+                  02. Expense Category Budgets
+                </h3>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  Add expense categories and set spending limits for this month.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={openNewBudgetModal}
+                disabled={unaddedExpenseCategories.length === 0}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-accent-text bg-accent-soft hover:bg-accent-soft-hover rounded-lg transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Expected monthly income ({activeCurrency})
-              </label>
-              <input
-                id="planned-income"
-                type="number"
-                step={isZeroDecimal ? '1' : '0.01'}
-                min="0"
-                value={plannedIncome}
-                onChange={(e) => setPlannedIncome(e.target.value)}
-                placeholder={isZeroDecimal ? '0' : '0.00'}
-                className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
-              />
+                <Plus className="w-3.5 h-3.5" />
+                <span>New Category Budget</span>
+              </button>
             </div>
 
-            <div>
-              <label
-                htmlFor="savings-goal"
-                className="block text-xs font-medium text-ink-secondary mb-1.5"
-              >
-                Monthly savings goal ({activeCurrency})
-              </label>
-              <input
-                id="savings-goal"
-                type="number"
-                step={isZeroDecimal ? '1' : '0.01'}
-                min="0"
-                value={savingsGoal}
-                onChange={(e) => setSavingsGoal(e.target.value)}
-                placeholder={isZeroDecimal ? '0' : '0.00'}
-                className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
-              />
-            </div>
-          </div>
-        </section>
+            {addedBudgets.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-xs text-ink-muted">
+                  No category budgets added yet. Click &ldquo;New Category Budget&rdquo; to allocate a category limit.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-line">
+                {addedBudgets.map((item) => {
+                  const cat = categoryById.get(item.categoryId);
+                  const catName = cat?.name || `Category #${item.categoryId}`;
+                  const pillar = KAKEIBO_PILLAR_META[catName];
+                  const description = cat?.description || pillar?.description || null;
 
-        <section className="bg-surface border border-line rounded-xl p-6 space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-            <div>
-              <h3 className="text-sm font-semibold text-ink">
-                02. Expense Category Budgets
-              </h3>
-              <p className="text-xs text-ink-muted mt-0.5">
-                Allocate spending limits across your Kakeibo pillars and custom categories.
-              </p>
+                  return (
+                    <div
+                      key={item.categoryId}
+                      className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <label
+                            htmlFor={`budget-${item.categoryId}`}
+                            className="text-sm font-medium text-ink"
+                          >
+                            {catName}
+                          </label>
+                          {pillar && (
+                            <span className="text-xs text-ink-muted">· {pillar.jp}</span>
+                          )}
+                        </div>
+                        {description && (
+                          <p className="text-xs text-ink-muted mt-0.5">{description}</p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="w-full sm:w-44">
+                          <input
+                            id={`budget-${item.categoryId}`}
+                            type="number"
+                            step={isZeroDecimal ? '1' : '0.01'}
+                            min="0"
+                            value={item.allocatedAmount}
+                            onChange={(e) =>
+                              handleUpdateBudgetAmount(item.categoryId, e.target.value)
+                            }
+                            className="w-full px-3 py-2 text-sm font-mono tabular-nums text-right bg-surface border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveBudget(item.categoryId)}
+                          aria-label={`Remove ${catName} budget`}
+                          className="p-2 rounded-lg text-ink-muted hover:text-danger-accent hover:bg-danger-bg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+
+        <div className="lg:col-span-4 space-y-6">
+          <section className="bg-surface border border-line rounded-xl p-6 space-y-4 sticky top-20">
+            <h3 className="text-sm font-semibold text-ink">03. Plan Review</h3>
+
+            <div className="space-y-3 text-sm border-t border-b border-line py-4">
+              <div className="flex items-center justify-between">
+                <span className="text-ink-muted">Planned income</span>
+                <span className="font-mono tabular-nums font-medium text-ink">
+                  {formatCurrency(reviewMetrics.plannedIncome)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ink-muted">Savings goal</span>
+                <span className="font-mono tabular-nums font-medium text-success-accent">
+                  -{formatCurrency(reviewMetrics.savingsGoal)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-line">
+                <span className="font-medium text-ink">Available for spending</span>
+                <span className="font-mono tabular-nums font-semibold text-ink">
+                  {formatCurrency(reviewMetrics.plannedAvailable)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ink-muted">Allocated category budgets</span>
+                <span className="font-mono tabular-nums font-medium text-ink">
+                  {formatCurrency(reviewMetrics.totalAllocated)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-line">
+                <span className="text-ink-muted">
+                  {reviewMetrics.exceedsAvailable ? 'Over-allocated by' : 'Unallocated buffer'}
+                </span>
+                <span
+                  className={`font-mono tabular-nums font-semibold ${
+                    reviewMetrics.exceedsAvailable ? 'text-warning-accent' : 'text-success-accent'
+                  }`}
+                >
+                  {formatCurrency(Math.abs(reviewMetrics.difference))}
+                </span>
+              </div>
             </div>
+
+            {reviewMetrics.exceedsAvailable ? (
+              <div
+                role="status"
+                className="flex items-start gap-2.5 rounded-lg bg-warning-bg border border-warning-line px-3.5 py-3 text-xs text-warning"
+              >
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  Your allocated category budgets exceed your planned available spending (
+                  {formatCurrency(reviewMetrics.plannedAvailable)}) by{' '}
+                  <span className="font-mono font-semibold">
+                    {formatCurrency(reviewMetrics.difference)}
+                  </span>
+                  . You can still save this plan, or adjust allocations.
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-start gap-2.5 rounded-lg bg-success-bg border border-success-line px-3.5 py-3 text-xs text-success">
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  Your category budgets fit within your planned spending capacity.
+                </p>
+              </div>
+            )}
 
             <button
-              type="button"
-              onClick={onOpenNewCategory}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-accent-text bg-accent-soft hover:bg-accent-soft-hover rounded-lg transition-colors whitespace-nowrap"
+              type="submit"
+              disabled={saving}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>New expense category</span>
+              <Save className="w-4 h-4" />
+              <span>
+                {saving
+                  ? 'Saving plan...'
+                  : currentPlan
+                  ? 'Update monthly plan'
+                  : 'Save monthly plan'}
+              </span>
             </button>
-          </div>
+          </section>
+        </div>
+      </form>
 
-          <div className="divide-y divide-line">
-            {planExpenseCategories.map((cat) => {
-              const pillar = KAKEIBO_PILLAR_META[cat.name];
-              return (
-                <div
-                  key={cat.id}
-                  className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor={`budget-${cat.id}`}
-                        className="text-sm font-medium text-ink"
-                      >
-                        {cat.name}
-                      </label>
-                      {pillar && (
-                        <span className="text-xs text-ink-muted">· {pillar.jp}</span>
-                      )}
-                      {!cat.isActive && (
-                        <span className="text-xs text-ink-muted">· Archived</span>
-                      )}
-                    </div>
-                    {pillar && (
-                      <p className="text-xs text-ink-muted mt-0.5">{pillar.description}</p>
-                    )}
-                  </div>
-
-                  <div className="w-full sm:w-44 shrink-0">
-                    <input
-                      id={`budget-${cat.id}`}
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={budgetInputs[cat.id] ?? '0'}
-                      onChange={(e) =>
-                        setBudgetInputs((prev) => ({
-                          ...prev,
-                          [cat.id]: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 text-sm font-mono tabular-nums text-right bg-surface border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      </div>
-
-      <div className="lg:col-span-4 space-y-6">
-        <section className="bg-surface border border-line rounded-xl p-6 space-y-4 sticky top-20">
-          <h3 className="text-sm font-semibold text-ink">03. Plan Review</h3>
-
-          <div className="space-y-3 text-sm border-t border-b border-line py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-ink-muted">Planned income</span>
-              <span className="font-mono tabular-nums font-medium text-ink">
-                {formatCurrency(reviewMetrics.plannedIncome)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-ink-muted">Savings goal</span>
-              <span className="font-mono tabular-nums font-medium text-success-accent">
-                -{formatCurrency(reviewMetrics.savingsGoal)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-2 border-t border-line">
-              <span className="font-medium text-ink">Available for spending</span>
-              <span className="font-mono tabular-nums font-semibold text-ink">
-                {formatCurrency(reviewMetrics.plannedAvailable)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-ink-muted">Allocated category budgets</span>
-              <span className="font-mono tabular-nums font-medium text-ink">
-                {formatCurrency(reviewMetrics.totalAllocated)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-2 border-t border-line">
-              <span className="text-ink-muted">
-                {reviewMetrics.exceedsAvailable ? 'Over-allocated by' : 'Unallocated buffer'}
-              </span>
-              <span
-                className={`font-mono tabular-nums font-semibold ${
-                  reviewMetrics.exceedsAvailable ? 'text-warning-accent' : 'text-success-accent'
-                }`}
-              >
-                {formatCurrency(Math.abs(reviewMetrics.difference))}
-              </span>
-            </div>
-          </div>
-
-          {reviewMetrics.exceedsAvailable ? (
-            <div
-              role="status"
-              className="flex items-start gap-2.5 rounded-lg bg-warning-bg border border-warning-line px-3.5 py-3 text-xs text-warning"
-            >
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <p className="leading-relaxed">
-                Your allocated category budgets exceed your planned available spending (
-                {formatCurrency(reviewMetrics.plannedAvailable)}) by{' '}
-                <span className="font-mono font-semibold">
-                  {formatCurrency(reviewMetrics.difference)}
-                </span>
-                . You can still save this plan, or adjust allocations.
-              </p>
-            </div>
-          ) : (
-            <div className="flex items-start gap-2.5 rounded-lg bg-success-bg border border-success-line px-3.5 py-3 text-xs text-success">
-              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-              <p className="leading-relaxed">
-                Your category budgets fit within your planned spending capacity.
-              </p>
+      <Modal
+        open={budgetModalOpen}
+        onClose={() => setBudgetModalOpen(false)}
+        title="New Category Budget"
+        subtitle={`Allocate a spending limit for ${formatMonthYear(selectedMonth, selectedYear)}.`}
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleAddCategoryBudget} className="space-y-4">
+          {modalError && (
+            <div className="rounded-lg bg-danger-bg border border-danger-line px-3.5 py-2.5 text-sm text-danger">
+              {modalError}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
-          >
-            <Save className="w-4 h-4" />
-            <span>
-              {saving
-                ? 'Saving plan...'
-                : currentPlan
-                ? 'Update monthly plan'
-                : 'Save monthly plan'}
-            </span>
-          </button>
-        </section>
-      </div>
-    </form>
+          <div>
+            <label
+              htmlFor="budget-modal-category"
+              className="block text-xs font-medium text-ink-secondary mb-1.5"
+            >
+              Category
+            </label>
+            <select
+              id="budget-modal-category"
+              value={modalCategoryId}
+              onChange={(e) => setModalCategoryId(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+            >
+              <option value="">Select category</option>
+              {unaddedExpenseCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="budget-modal-amount"
+              className="block text-xs font-medium text-ink-secondary mb-1.5"
+            >
+              Allocated amount ({activeCurrency})
+            </label>
+            <input
+              id="budget-modal-amount"
+              type="number"
+              step={isZeroDecimal ? '1' : '0.01'}
+              min="0"
+              value={modalAllocatedAmount}
+              onChange={(e) => setModalAllocatedAmount(e.target.value)}
+              placeholder={isZeroDecimal ? '0' : '0.00'}
+              className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2 border-t border-line">
+            <button
+              type="button"
+              onClick={() => setBudgetModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg"
+            >
+              Add budget
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 }
 
 export default function MonthlyPlanPage() {
   const dispatch = useAppDispatch();
-  const toast = useToast();
 
   const { selectedMonth, selectedYear, currentPlan, plans, loading, saving } = useAppSelector(
     (state) => state.plans
   );
   const categories = useAppSelector((state) => state.categories.items);
-
-  const [newCatModalOpen, setNewCatModalOpen] = useState(false);
-  const [newCatName, setNewCatName] = useState('');
-  const [newCatError, setNewCatError] = useState('');
 
   const [futureModalOpen, setFutureModalOpen] = useState(false);
   const [futureMonth, setFutureMonth] = useState<number>(
@@ -421,41 +558,10 @@ export default function MonthlyPlanPage() {
     dispatch(fetchCategories());
   }, [dispatch, selectedMonth, selectedYear]);
 
-  const activeExpenseCategories = useMemo(
-    () => categories.filter((c) => c.type === 'EXPENSE' && c.isActive),
+  const expenseCategories = useMemo(
+    () => categories.filter((c) => c.type === 'EXPENSE'),
     [categories]
   );
-
-  const planExpenseCategories = useMemo(() => {
-    const existingBudgetMap = new Map<number, Category | null>(
-      (currentPlan?.budgets || []).map((b) => [b.categoryId, b.category])
-    );
-    const merged = [...activeExpenseCategories];
-    for (const [catId, cat] of existingBudgetMap.entries()) {
-      if (cat && !merged.some((c) => c.id === catId)) {
-        merged.push(cat);
-      }
-    }
-    return merged;
-  }, [activeExpenseCategories, currentPlan]);
-
-  const handleCreateCustomCategory = async (e: FormEvent) => {
-    e.preventDefault();
-    setNewCatError('');
-    if (!newCatName.trim()) {
-      setNewCatError('Category name is required.');
-      return;
-    }
-
-    const res = await dispatch(createCategory({ name: newCatName.trim(), type: 'EXPENSE' }));
-    if (createCategory.fulfilled.match(res)) {
-      setNewCatName('');
-      setNewCatModalOpen(false);
-      toast.success(`Expense category "${res.payload.name}" created.`);
-    } else {
-      setNewCatError(res.payload || 'Unable to create category.');
-    }
-  };
 
   const handleSwitchToPeriod = (e: FormEvent) => {
     e.preventDefault();
@@ -500,9 +606,8 @@ export default function MonthlyPlanPage() {
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}
           currentPlan={activePlan}
-          planExpenseCategories={planExpenseCategories}
+          expenseCategories={expenseCategories}
           saving={saving}
-          onOpenNewCategory={() => setNewCatModalOpen(true)}
         />
       )}
 
@@ -524,7 +629,6 @@ export default function MonthlyPlanPage() {
               <thead>
                 <tr className="border-b border-line text-xs font-medium text-ink-muted">
                   <th className="py-2.5 pr-4">Period</th>
-                  <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-3 text-right">Planned Income</th>
                   <th className="py-2.5 px-3 text-right">Actual Income</th>
                   <th className="py-2.5 px-3 text-right">Allocated</th>
@@ -547,9 +651,6 @@ export default function MonthlyPlanPage() {
                     >
                       <td className="py-3 pr-4 font-medium text-ink whitespace-nowrap">
                         {formatMonthYear(p.month, p.year)}
-                      </td>
-                      <td className="py-3 px-3 text-xs text-ink-muted capitalize whitespace-nowrap">
-                        {p.status.toLowerCase()}
                       </td>
                       <td className="py-3 px-3 text-right font-mono tabular-nums text-ink-secondary">
                         {formatCurrency(p.plannedIncome)}
@@ -578,50 +679,6 @@ export default function MonthlyPlanPage() {
           </div>
         )}
       </section>
-
-      <Modal
-        open={newCatModalOpen}
-        onClose={() => setNewCatModalOpen(false)}
-        title="New expense category"
-        subtitle="Create a custom expense category and allocate a budget to it."
-        maxWidth="max-w-md"
-      >
-        <form onSubmit={handleCreateCustomCategory} className="space-y-4">
-          {newCatError && (
-            <div className="rounded-lg bg-danger-bg border border-danger-line px-3.5 py-2.5 text-sm text-danger">
-              {newCatError}
-            </div>
-          )}
-          <div>
-            <label htmlFor="new-expense-cat" className="block text-xs font-medium text-ink-secondary mb-1.5">
-              Category name
-            </label>
-            <input
-              id="new-expense-cat"
-              type="text"
-              value={newCatName}
-              onChange={(e) => setNewCatName(e.target.value)}
-              placeholder="e.g., Dining Out, Utilities, Subscriptions"
-              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15"
-            />
-          </div>
-          <div className="flex justify-end gap-3 pt-2 border-t border-line">
-            <button
-              type="button"
-              onClick={() => setNewCatModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg"
-            >
-              Create category
-            </button>
-          </div>
-        </form>
-      </Modal>
 
       <Modal
         open={futureModalOpen}

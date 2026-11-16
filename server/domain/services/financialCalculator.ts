@@ -8,8 +8,6 @@ export type DecimalInput = Prisma.Decimal | number | string | null | undefined;
 export interface CategoryBreakdownItem {
   categoryId: number;
   categoryName: string;
-  isDefault: boolean;
-  isActive: boolean;
   allocatedAmount: number;
   actualSpent: number;
   remainingBudget: number;
@@ -41,8 +39,6 @@ export interface FinancialBudgetInput {
   category?: {
     id: number | null;
     name: string;
-    isDefault: boolean;
-    isActive: boolean;
   } | null;
 }
 
@@ -53,8 +49,6 @@ export interface FinancialTransactionInput {
     id: number | null;
     name: string;
     type: CategoryType | string;
-    isDefault: boolean;
-    isActive: boolean;
   } | null;
 }
 
@@ -110,7 +104,7 @@ export function calculatePlanSummary(
   const spendByCategoryId = new Map<number, Prisma.Decimal>();
   const categoryMetaMap = new Map<
     number,
-    { id: number | null; name: string; isDefault: boolean; isActive: boolean }
+    { id: number | null; name: string }
   >();
 
   for (const b of budgets) {
@@ -142,8 +136,6 @@ export function calculatePlanSummary(
     categoryBreakdown.push({
       categoryId,
       categoryName: meta?.name || "Unknown",
-      isDefault: Boolean(meta?.isDefault),
-      isActive: meta?.isActive ?? true,
       allocatedAmount: toMoneyNumber(allocatedDec),
       actualSpent: toMoneyNumber(actualDec),
       remainingBudget: toMoneyNumber(remainingDec),

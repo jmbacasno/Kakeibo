@@ -35,4 +35,20 @@ export class CategoryBudgetRepository implements CategoryBudgetRepositoryInterfa
     });
     return CategoryBudgetMapper.toEntity(saved);
   }
+
+  async deleteMissingForPlan(monthlyPlanId: number, keepCategoryIds: number[]): Promise<void> {
+    if (keepCategoryIds.length === 0) {
+      await this.client.categoryBudget.deleteMany({
+        where: { monthlyPlanId },
+      });
+      return;
+    }
+
+    await this.client.categoryBudget.deleteMany({
+      where: {
+        monthlyPlanId,
+        categoryId: { notIn: keepCategoryIds },
+      },
+    });
+  }
 }

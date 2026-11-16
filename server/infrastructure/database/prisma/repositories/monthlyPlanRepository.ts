@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { MonthlyPlanEntity, PlanStatus } from "../../../../domain/entities/monthlyPlan/index.js";
+import { MonthlyPlanEntity } from "../../../../domain/entities/monthlyPlan/index.js";
 import {
   AvailablePlanPeriod,
   MonthlyPlanRepositoryInterface,
@@ -44,7 +44,6 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
         id: true,
         month: true,
         year: true,
-        status: true,
       },
       orderBy: [{ year: "desc" }, { month: "desc" }],
     });
@@ -76,7 +75,6 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
     year: number;
     plannedIncome: number;
     savingsGoal: number;
-    status: PlanStatus;
   }): Promise<MonthlyPlanEntity> {
     const created = await this.client.monthlyPlan.create({
       data: {
@@ -85,7 +83,6 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
         year: data.year,
         plannedIncome: data.plannedIncome,
         savingsGoal: data.savingsGoal,
-        status: data.status,
       },
       include: planFullInclude,
     });
@@ -97,7 +94,6 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
     data: {
       plannedIncome?: number;
       savingsGoal?: number;
-      status?: PlanStatus;
     }
   ): Promise<MonthlyPlanEntity> {
     const updated = await this.client.monthlyPlan.update({
@@ -105,17 +101,7 @@ export class MonthlyPlanRepository implements MonthlyPlanRepositoryInterface {
       data: {
         ...(data.plannedIncome !== undefined ? { plannedIncome: data.plannedIncome } : {}),
         ...(data.savingsGoal !== undefined ? { savingsGoal: data.savingsGoal } : {}),
-        ...(data.status !== undefined ? { status: data.status } : {}),
       },
-      include: planFullInclude,
-    });
-    return MonthlyPlanMapper.toEntity(updated);
-  }
-
-  async updateStatus(id: number, status: PlanStatus): Promise<MonthlyPlanEntity> {
-    const updated = await this.client.monthlyPlan.update({
-      where: { id },
-      data: { status },
       include: planFullInclude,
     });
     return MonthlyPlanMapper.toEntity(updated);

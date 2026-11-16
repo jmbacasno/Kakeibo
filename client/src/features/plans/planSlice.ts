@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getErrorMessage } from '../../services/api';
-import { MonthlyPlan, PlanStatus } from '../../types/models';
+import { MonthlyPlan } from '../../types/models';
 import { forceLogout, logoutUser } from '../auth/authSlice';
 import {
   CreatePlanPayload,
@@ -58,18 +58,6 @@ export const updatePlan = createAsyncThunk<
 >('plans/update', async ({ id, data }, { rejectWithValue }) => {
   try {
     return await planService.update(id, data);
-  } catch (err) {
-    return rejectWithValue(getErrorMessage(err));
-  }
-});
-
-export const updatePlanStatus = createAsyncThunk<
-  MonthlyPlan,
-  { id: number; status: PlanStatus },
-  { rejectValue: string }
->('plans/updateStatus', async ({ id, status }, { rejectWithValue }) => {
-  try {
-    return await planService.updateStatus(id, status);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -182,15 +170,6 @@ const planSlice = createSlice({
       .addCase(updatePlan.rejected, (state, action) => {
         state.saving = false;
         state.error = action.payload ?? 'Failed to update plan.';
-      })
-      .addCase(updatePlanStatus.fulfilled, (state, action) => {
-        if (state.currentPlan?.id === action.payload.id) {
-          state.currentPlan = action.payload;
-        }
-        const idx = state.plans.findIndex((p) => p.id === action.payload.id);
-        if (idx >= 0) {
-          state.plans[idx] = action.payload;
-        }
       })
       .addCase(savePlanBudgets.pending, (state) => {
         state.saving = true;

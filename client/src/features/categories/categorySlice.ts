@@ -6,14 +6,12 @@ import {
   categoryService,
   CreateCategoryPayload,
   FetchCategoriesParams,
-  ToggleCategoryStatusPayload,
   UpdateCategoryPayload,
 } from './categoryService';
 
 export type {
   CreateCategoryPayload,
   FetchCategoriesParams,
-  ToggleCategoryStatusPayload,
   UpdateCategoryPayload,
 };
 
@@ -48,18 +46,6 @@ export const updateCategory = createAsyncThunk<
 >('categories/update', async (payload, { rejectWithValue }) => {
   try {
     return await categoryService.update(payload);
-  } catch (err) {
-    return rejectWithValue(getErrorMessage(err));
-  }
-});
-
-export const toggleCategoryStatus = createAsyncThunk<
-  Category,
-  ToggleCategoryStatusPayload,
-  { rejectValue: string }
->('categories/toggleStatus', async (payload, { rejectWithValue }) => {
-  try {
-    return await categoryService.toggleStatus(payload);
   } catch (err) {
     return rejectWithValue(getErrorMessage(err));
   }
@@ -112,10 +98,6 @@ const categorySlice = createSlice({
         state.items.push(action.payload);
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
-        const idx = state.items.findIndex((c) => c.id === action.payload.id);
-        if (idx >= 0) state.items[idx] = action.payload;
-      })
-      .addCase(toggleCategoryStatus.fulfilled, (state, action) => {
         const idx = state.items.findIndex((c) => c.id === action.payload.id);
         if (idx >= 0) state.items[idx] = action.payload;
       })

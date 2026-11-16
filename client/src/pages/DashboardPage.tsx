@@ -69,7 +69,7 @@ export default function DashboardPage() {
           </h2>
           <p className="text-xs text-ink-muted mt-1">
             {hasPlan && plan
-              ? `Monthly ledger · Plan status: ${plan.status.toLowerCase()}`
+              ? 'Monthly income, budgets, and transactions overview'
               : 'No monthly plan created for this period yet'}
           </p>
         </div>
@@ -263,9 +263,6 @@ export default function DashboardPage() {
                             <span className="text-sm font-medium text-ink truncate">
                               {item.categoryName}
                             </span>
-                            {!item.isActive && (
-                              <span className="text-xs text-ink-muted">· Archived</span>
-                            )}
                           </div>
 
                           <div className="flex items-center gap-2 text-xs shrink-0">

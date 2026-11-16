@@ -35,14 +35,14 @@ function TransactionForm({
   const initialType: CategoryType = transaction
     ? transaction.type || transaction.category?.type || 'EXPENSE'
     : defaultType;
-  const firstActiveForInitial = categories.find((c) => c.type === initialType && c.isActive);
+  const firstForInitial = categories.find((c) => c.type === initialType);
 
   const [type, setType] = useState<CategoryType>(initialType);
   const [categoryId, setCategoryId] = useState<string>(
     transaction
       ? String(transaction.categoryId)
-      : firstActiveForInitial
-      ? String(firstActiveForInitial.id)
+      : firstForInitial
+      ? String(firstForInitial.id)
       : ''
   );
   const [amount, setAmount] = useState<string>(transaction ? String(transaction.amount) : '');
@@ -55,16 +55,12 @@ function TransactionForm({
   const [error, setError] = useState<string>('');
 
   const availableCategories = useMemo(() => {
-    return categories.filter((cat) => {
-      if (cat.type !== type) return false;
-      if (cat.isActive) return true;
-      return Boolean(transaction && cat.id === transaction.categoryId);
-    });
-  }, [categories, type, transaction]);
+    return categories.filter((cat) => cat.type === type);
+  }, [categories, type]);
 
   const handleTypeChange = (nextType: CategoryType) => {
     setType(nextType);
-    const matching = categories.filter((c) => c.type === nextType && c.isActive);
+    const matching = categories.filter((c) => c.type === nextType);
     setCategoryId(matching[0] ? String(matching[0].id) : '');
   };
 
@@ -181,7 +177,6 @@ function TransactionForm({
             {availableCategories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
-                {!cat.isActive ? ' (Archived)' : ''}
               </option>
             ))}
           </select>

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MonthlyPlanEntity, PlanStatus } from "../../domain/entities/monthlyPlan/index.js";
+import { MonthlyPlanEntity } from "../../domain/entities/monthlyPlan/index.js";
 import {
   calculatePlanSummary,
   PlanSummaryResult,
@@ -22,19 +22,13 @@ export const createPlanSchema = z.object({
   year: z.coerce.number().int().min(2000).max(2100),
   plannedIncome: moneySchema,
   savingsGoal: moneySchema,
-  status: z.enum(["DRAFT", "ACTIVE", "COMPLETED"]).optional().default("ACTIVE"),
   budgets: z.array(budgetItemSchema).optional().default([]),
 });
 
 export const updatePlanSchema = z.object({
   plannedIncome: moneySchema.optional(),
   savingsGoal: moneySchema.optional(),
-  status: z.enum(["DRAFT", "ACTIVE", "COMPLETED"]).optional(),
   budgets: z.array(budgetItemSchema).optional(),
-});
-
-export const updatePlanStatusSchema = z.object({
-  status: z.enum(["DRAFT", "ACTIVE", "COMPLETED"]),
 });
 
 export const currentPlanQuerySchema = z.object({
@@ -57,7 +51,6 @@ export class MonthlyPlanDTO {
   year!: number;
   plannedIncome!: number;
   savingsGoal!: number;
-  status!: PlanStatus;
   createdAt!: string | null;
   updatedAt!: string | null;
   budgets!: PlanBudgetItemDTO[];
@@ -78,7 +71,6 @@ export class MonthlyPlanDTO {
       year: plan.year,
       plannedIncome: toMoneyNumber(plan.plannedIncome),
       savingsGoal: toMoneyNumber(plan.savingsGoal),
-      status: plan.status,
       createdAt: plan.createdAt ? plan.createdAt.toISOString() : null,
       updatedAt: plan.updatedAt ? plan.updatedAt.toISOString() : null,
       budgets: (plan.budgets || []).map((b) => ({

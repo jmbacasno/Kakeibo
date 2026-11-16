@@ -1,5 +1,5 @@
 import { MonthlyPlan as PrismaMonthlyPlan } from "@prisma/client";
-import { MonthlyPlan, PlanStatus } from "../../../../domain/entities/monthlyPlan/index.js";
+import { MonthlyPlan } from "../../../../domain/entities/monthlyPlan/index.js";
 import {
   CategoryBudgetMapper,
   PrismaCategoryBudgetWithCategory,
@@ -23,7 +23,6 @@ export class MonthlyPlanMapper {
       year: raw.year,
       plannedIncome: Number(raw.plannedIncome),
       savingsGoal: Number(raw.savingsGoal),
-      status: raw.status as PlanStatus,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
       budgets: raw.budgets ? raw.budgets.map(CategoryBudgetMapper.toEntity) : [],

@@ -79,9 +79,6 @@ export class TransactionService {
     if (!category) {
       throw new NotFoundError("Selected category not found.");
     }
-    if (!category.isActive) {
-      throw new ValidationError("Archived categories cannot be used for new transactions.");
-    }
 
     assertDateWithinPlan(input.transactionDate, plan);
 
@@ -130,9 +127,6 @@ export class TransactionService {
       const category = await this.uow.categories.findByIdAndUserId(targetCategoryId, userId);
       if (!category) {
         throw new NotFoundError("Selected category not found.");
-      }
-      if (!category.isActive) {
-        throw new ValidationError("Archived categories cannot be selected for transactions.");
       }
     }
 

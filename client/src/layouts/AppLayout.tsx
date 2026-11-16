@@ -30,7 +30,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/plan', label: 'Monthly Plan', icon: CalendarRange },
   { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { to: '/categories', label: 'Categories', icon: Tags },
@@ -41,7 +41,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const ROUTE_TITLES: Record<string, string> = {
-  '/': 'Dashboard',
+  '/dashboard': 'Dashboard',
   '/plan': 'Monthly Plan',
   '/transactions': 'Transactions',
   '/categories': 'Categories',
@@ -88,7 +88,7 @@ export default function AppLayout() {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col lg:w-60 lg:shrink-0 bg-surface border-r border-line sticky top-0 h-screen">
         <div className="px-6 py-5 border-b border-line">
-          <NavLink to="/" className="block">
+          <NavLink to="/dashboard" className="block">
             <span className="font-serif text-xl font-semibold tracking-tight text-ink">
               Kakeibo
             </span>

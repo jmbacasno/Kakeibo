@@ -5,7 +5,6 @@ import {
   createCategorySchema,
   listCategoriesQuerySchema,
   updateCategorySchema,
-  updateCategoryStatusSchema,
 } from "../dtos/categoryDTO.js";
 import { ConflictError, NotFoundError } from "../errors.js";
 import { parseDTO } from "../validation.js";
@@ -17,7 +16,6 @@ export class CategoryService {
     const query = parseDTO(listCategoriesQuerySchema, rawQuery || {});
     const categories = await this.uow.categories.findAllByUserId(userId, {
       type: query.type,
-      isActive: query.isActive,
     });
     return categories.map((c) => CategoryDTO.fromEntity(c));
   }
@@ -49,9 +47,8 @@ export class CategoryService {
       id: null,
       userId,
       name: input.name,
+      description: input.description,
       type: input.type,
-      isDefault: false,
-      isActive: true,
       createdAt: now,
       updatedAt: now,
     });
@@ -81,28 +78,14 @@ export class CategoryService {
     }
 
     const entity = new Category(existing);
-    entity.updateName(input.name);
+    const nextDescription =
+      input.description !== undefined ? input.description : entity.description;
+    entity.updateDetails(input.name, nextDescription);
 
-    const updated = await this.uow.categories.updateName(categoryId, entity.name);
-    return CategoryDTO.fromEntity(updated);
-  }
-
-  async updateCategoryStatus(
-    userId: number,
-    categoryId: number,
-    rawData: unknown
-  ): Promise<CategoryDTO> {
-    const input = parseDTO(updateCategoryStatusSchema, rawData);
-
-    const existing = await this.uow.categories.findByIdAndUserId(categoryId, userId);
-    if (!existing) {
-      throw new NotFoundError("Category not found.");
-    }
-
-    const entity = new Category(existing);
-    entity.setStatus(input.isActive);
-
-    const updated = await this.uow.categories.updateStatus(categoryId, entity.isActive);
+    const updated = await this.uow.categories.update(categoryId, {
+      name: entity.name,
+      description: entity.description,
+    });
     return CategoryDTO.fromEntity(updated);
   }
 
@@ -110,13 +93,6 @@ export class CategoryService {
     const existing = await this.uow.categories.findByIdAndUserId(categoryId, userId);
     if (!existing) {
       throw new NotFoundError("Category not found.");
-    }
-
-    const entity = new Category(existing);
-    if (entity.isInUse()) {
-      throw new ConflictError(
-        "This category is already used by transactions or budgets. Archive it instead to hide it from new entries."
-      );
     }
 
     await this.uow.categories.delete(categoryId);

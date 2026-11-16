@@ -6,4 +6,5 @@ export interface CategoryBudgetRepositoryInterface {
     categoryId: number,
     allocatedAmount: number
   ): Promise<CategoryBudgetEntity>;
+  deleteMissingForPlan(monthlyPlanId: number, keepCategoryIds: number[]): Promise<void>;
 }

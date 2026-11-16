@@ -52,19 +52,6 @@ router.put("/:id", validateIdParam, async (req: Request, res: Response) => {
   });
 });
 
-router.patch("/:id/status", validateIdParam, async (req: Request, res: Response) => {
-  const authReq = req as AuthenticatedRequest;
-  const category = await categoryApplicationService.updateCategoryStatus(
-    authReq.user!.id,
-    Number(req.params.id),
-    req.body
-  );
-  res.json({
-    success: true,
-    data: { category },
-  });
-});
-
 router.delete("/:id", validateIdParam, async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   await categoryApplicationService.deleteCategory(authReq.user!.id, Number(req.params.id));

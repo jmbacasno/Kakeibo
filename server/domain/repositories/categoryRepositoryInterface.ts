@@ -2,7 +2,6 @@ import { CategoryEntity, CategoryType } from "../entities/category/index.js";
 
 export interface CategoryFilterParams {
   type?: CategoryType;
-  isActive?: boolean;
 }
 
 export interface CategoryRepositoryInterface {
@@ -17,7 +16,6 @@ export interface CategoryRepositoryInterface {
   ): Promise<CategoryEntity | null>;
   create(category: CategoryEntity): Promise<CategoryEntity>;
   upsertDefault(category: CategoryEntity): Promise<CategoryEntity>;
-  updateName(id: number, name: string): Promise<CategoryEntity>;
-  updateStatus(id: number, isActive: boolean): Promise<CategoryEntity>;
+  update(id: number, data: { name: string; description: string | null }): Promise<CategoryEntity>;
   delete(id: number): Promise<void>;
 }

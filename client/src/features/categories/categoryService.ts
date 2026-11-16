@@ -3,22 +3,18 @@ import { ApiSuccessResponse, Category, CategoryType } from '../../types/models';
 
 export interface FetchCategoriesParams {
   type?: CategoryType;
-  isActive?: boolean;
 }
 
 export interface CreateCategoryPayload {
   name: string;
+  description?: string | null;
   type: CategoryType;
 }
 
 export interface UpdateCategoryPayload {
   id: number;
   name: string;
-}
-
-export interface ToggleCategoryStatusPayload {
-  id: number;
-  isActive: boolean;
+  description?: string | null;
 }
 
 export async function fetchAll(params: FetchCategoriesParams = {}): Promise<Category[]> {
@@ -33,18 +29,11 @@ export async function create(payload: CreateCategoryPayload): Promise<Category> 
   return res.data.data.category;
 }
 
-export async function update({ id, name }: UpdateCategoryPayload): Promise<Category> {
+export async function update({ id, name, description }: UpdateCategoryPayload): Promise<Category> {
   const res = await api.put<ApiSuccessResponse<{ category: Category }>>(`/categories/${id}`, {
     name,
+    description: description ?? null,
   });
-  return res.data.data.category;
-}
-
-export async function toggleStatus({ id, isActive }: ToggleCategoryStatusPayload): Promise<Category> {
-  const res = await api.patch<ApiSuccessResponse<{ category: Category }>>(
-    `/categories/${id}/status`,
-    { isActive }
-  );
   return res.data.data.category;
 }
 
@@ -57,7 +46,6 @@ export const categoryService = {
   fetchAll,
   create,
   update,
-  toggleStatus,
   remove,
 };
 

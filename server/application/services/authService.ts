@@ -87,9 +87,8 @@ export class AuthService {
           id: null,
           userId: savedUser.id!,
           name: template.name,
+          description: template.description,
           type: template.type,
-          isDefault: true,
-          isActive: true,
           createdAt: now,
           updatedAt: now,
         });

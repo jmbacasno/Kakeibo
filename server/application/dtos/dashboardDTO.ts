@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { PlanStatus } from "../../domain/entities/monthlyPlan/index.js";
 import { PlanSummaryResult } from "../../domain/services/financialCalculator.js";
 import { MonthlyPlanDTO } from "./monthlyPlanDTO.js";
 import { TransactionDTO } from "./transactionDTO.js";
@@ -13,7 +12,6 @@ export interface AvailableMonthItemDTO {
   id: number;
   month: number;
   year: number;
-  status: PlanStatus;
 }
 
 export interface DashboardDTO {

@@ -18,9 +18,8 @@ async function ensureDefaultCategoriesForUser(userId: number): Promise<void> {
       create: {
         userId,
         name: template.name,
+        description: template.description,
         type: template.type,
-        isDefault: true,
-        isActive: true,
       },
     });
   }
@@ -42,11 +41,10 @@ async function ensureDefaultSettingsForUser(userId: number): Promise<void> {
 }
 
 async function seedDefaultAccounts(): Promise<void> {
-  const adminPasswordHash = await bcryptjs.hash("admin", settings.bcryptSaltRounds);
+  const defaultPasswordHash = await bcryptjs.hash("johndoe123", settings.bcryptSaltRounds);
 
   const accounts = [
-    { firstName: "System", lastName: "Administrator", email: "admin" },
-    { firstName: "Admin", lastName: "User", email: "admin@gmail.com" },
+    { firstName: "Joe", lastName: "Doe", email: "johndoe@gmail.com" },
   ];
 
   for (const account of accounts) {
@@ -57,7 +55,7 @@ async function seedDefaultAccounts(): Promise<void> {
           firstName: account.firstName,
           lastName: account.lastName,
           email: account.email,
-          password: adminPasswordHash,
+          password: defaultPasswordHash,
         },
       });
       await ensureDefaultCategoriesForUser(created.id);
@@ -77,7 +75,7 @@ async function seedDefaultAccounts(): Promise<void> {
 
 async function main(): Promise<void> {
   await seedDefaultAccounts();
-  console.log("Kakeibo database seed completed (default admin/admin ready).");
+  console.log("Kakeibo database seed completed (default johndoe@gmail.com / johndoe123 ready).");
 }
 
 main()

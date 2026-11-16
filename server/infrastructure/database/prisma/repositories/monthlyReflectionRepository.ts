@@ -15,7 +15,6 @@ const reflectionInclude = {
       id: true,
       month: true,
       year: true,
-      status: true,
     },
   },
 } as const;

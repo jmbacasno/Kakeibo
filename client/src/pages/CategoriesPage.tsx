@@ -1,7 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Archive, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { AlertTriangle, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import ConfirmDialog from '../components/ConfirmDialog';
 import { CardSkeleton } from '../components/LoadingSkeleton';
 import Modal from '../components/Modal';
 import { useToast } from '../components/ToastProvider';
@@ -9,11 +8,9 @@ import {
   createCategory,
   deleteCategory,
   fetchCategories,
-  toggleCategoryStatus,
   updateCategory,
 } from '../features/categories/categorySlice';
 import { Category, CategoryType } from '../types/models';
-import { KAKEIBO_PILLAR_META } from '../utils/formatters';
 
 type CategoryTypeFilter = 'ALL' | CategoryType;
 
@@ -26,11 +23,13 @@ export default function CategoriesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<Category | null>(null);
   const [catName, setCatName] = useState('');
+  const [catDescription, setCatDescription] = useState('');
   const [catType, setCatType] = useState<CategoryType>('EXPENSE');
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
 
   const [deletingCat, setDeletingCat] = useState<Category | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [deletingLoading, setDeletingLoading] = useState(false);
 
   useEffect(() => {
@@ -49,6 +48,7 @@ export default function CategoriesPage() {
   const openCreateModal = (defaultType: CategoryType = 'EXPENSE') => {
     setEditingCat(null);
     setCatName('');
+    setCatDescription('');
     setCatType(defaultType);
     setFormError('');
     setModalOpen(true);
@@ -57,9 +57,21 @@ export default function CategoriesPage() {
   const openEditModal = (cat: Category) => {
     setEditingCat(cat);
     setCatName(cat.name);
+    setCatDescription(cat.description || '');
     setCatType(cat.type);
     setFormError('');
     setModalOpen(true);
+  };
+
+  const openDeleteModal = (cat: Category) => {
+    setDeletingCat(cat);
+    setDeleteConfirmName('');
+  };
+
+  const closeDeleteModal = () => {
+    if (deletingLoading) return;
+    setDeletingCat(null);
+    setDeleteConfirmName('');
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -70,21 +82,31 @@ export default function CategoriesPage() {
       return;
     }
 
+    const normalizedDescription = catDescription.trim() ? catDescription.trim() : null;
+
     setSaving(true);
     if (editingCat) {
       const res = await dispatch(
-        updateCategory({ id: editingCat.id, name: catName.trim() })
+        updateCategory({
+          id: editingCat.id,
+          name: catName.trim(),
+          description: normalizedDescription,
+        })
       );
       setSaving(false);
       if (updateCategory.fulfilled.match(res)) {
-        toast.success('Category renamed.');
+        toast.success('Category updated.');
         setModalOpen(false);
       } else {
-        setFormError(res.payload || 'Unable to rename category.');
+        setFormError(res.payload || 'Unable to update category.');
       }
     } else {
       const res = await dispatch(
-        createCategory({ name: catName.trim(), type: catType })
+        createCategory({
+          name: catName.trim(),
+          description: normalizedDescription,
+          type: catType,
+        })
       );
       setSaving(false);
       if (createCategory.fulfilled.match(res)) {
@@ -96,30 +118,18 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleToggleStatus = async (cat: Category) => {
-    const nextActive = !cat.isActive;
-    const res = await dispatch(
-      toggleCategoryStatus({ id: cat.id, isActive: nextActive })
-    );
-    if (toggleCategoryStatus.fulfilled.match(res)) {
-      toast.success(
-        nextActive
-          ? `"${cat.name}" activated.`
-          : `"${cat.name}" archived. Historical records remain intact.`
-      );
-    } else {
-      toast.error(res.payload || 'Unable to update category status.');
-    }
-  };
-
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (e: FormEvent) => {
+    e.preventDefault();
     if (!deletingCat) return;
+    if (deleteConfirmName.trim() !== deletingCat.name) return;
+
     setDeletingLoading(true);
     const res = await dispatch(deleteCategory(deletingCat.id));
     setDeletingLoading(false);
     if (deleteCategory.fulfilled.match(res)) {
       toast.success(`Category "${deletingCat.name}" deleted.`);
       setDeletingCat(null);
+      setDeleteConfirmName('');
     } else {
       toast.error(res.payload || 'Unable to delete category.');
     }
@@ -133,100 +143,73 @@ export default function CategoriesPage() {
           <p className="text-xs text-ink-muted mt-0.5">{subtitle}</p>
         </div>
         <span className="text-xs font-mono tabular-nums text-ink-muted">
-          {list.filter((c) => c.isActive).length} active · {list.length} total
+          {list.length} {list.length === 1 ? 'category' : 'categories'}
         </span>
       </div>
 
-      <div className="divide-y divide-line">
-        {list.map((cat) => {
-          const pillar = KAKEIBO_PILLAR_META[cat.name];
-          const txCount = cat._count?.transactions || 0;
-          const budgetCount = cat._count?.categoryBudgets || 0;
-          const isInUse = txCount > 0 || budgetCount > 0;
+      {list.length === 0 ? (
+        <p className="px-6 py-8 text-xs text-ink-muted text-center">
+          No categories in this group yet.
+        </p>
+      ) : (
+        <div className="divide-y divide-line">
+          {list.map((cat) => {
+            const txCount = cat._count?.transactions || 0;
+            const budgetCount = cat._count?.categoryBudgets || 0;
 
-          return (
-            <div
-              key={cat.id}
-              className={`px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                !cat.isActive ? 'bg-surface-muted/70' : ''
-              }`}
-            >
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`text-sm font-medium ${
-                      cat.isActive ? 'text-ink' : 'text-ink-muted line-through'
-                    }`}
-                  >
-                    {cat.name}
-                  </span>
-                  {pillar && (
-                    <span className="text-xs text-ink-muted">· {pillar.jp}</span>
-                  )}
-                  <span className="text-xs text-ink-muted">
-                    · {cat.isDefault ? 'Default' : 'Custom'}
-                  </span>
-                  {!cat.isActive && (
-                    <span className="text-xs text-warning-accent font-medium">· Archived</span>
-                  )}
+            return (
+              <div
+                key={cat.id}
+                className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-ink">{cat.name}</span>
+                  </div>
+
+                  <p className="text-xs text-ink-muted mt-0.5">
+                    {cat.description ? `${cat.description} · ` : ''}
+                    <span className="font-mono tabular-nums">
+                      {txCount} {txCount === 1 ? 'transaction' : 'transactions'}
+                      {cat.type === 'EXPENSE'
+                        ? ` · ${budgetCount} ${budgetCount === 1 ? 'budget' : 'budgets'}`
+                        : ''}
+                    </span>
+                  </p>
                 </div>
 
-                <p className="text-xs text-ink-muted mt-0.5">
-                  {pillar ? `${pillar.description} · ` : ''}
-                  <span className="font-mono tabular-nums">
-                    {txCount} {txCount === 1 ? 'transaction' : 'transactions'}
-                    {cat.type === 'EXPENSE'
-                      ? ` · ${budgetCount} ${budgetCount === 1 ? 'budget' : 'budgets'}`
-                      : ''}
-                  </span>
-                </p>
-              </div>
-
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => openEditModal(cat)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle transition-colors whitespace-nowrap"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                  <span>Rename</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleToggleStatus(cat)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle transition-colors whitespace-nowrap"
-                >
-                  {cat.isActive ? (
-                    <>
-                      <Archive className="w-3.5 h-3.5" />
-                      <span>Archive</span>
-                    </>
-                  ) : (
-                    <>
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Activate</span>
-                    </>
-                  )}
-                </button>
-
-                {!isInUse && (
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     type="button"
-                    onClick={() => setDeletingCat(cat)}
+                    onClick={() => openEditModal(cat)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle transition-colors whitespace-nowrap"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => openDeleteModal(cat)}
                     aria-label={`Delete ${cat.name}`}
                     className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-danger-accent bg-surface border border-danger-line rounded-lg hover:bg-danger-bg transition-colors whitespace-nowrap"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>
                   </button>
-                )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </section>
+  );
+
+  const deleteTxCount = deletingCat?._count?.transactions || 0;
+  const deleteBudgetCount = deletingCat?._count?.categoryBudgets || 0;
+  const canConfirmDelete = Boolean(
+    deletingCat && deleteConfirmName.trim() === deletingCat.name
   );
 
   return (
@@ -235,7 +218,7 @@ export default function CategoriesPage() {
         <div>
           <h2 className="font-serif text-2xl font-semibold text-ink">Categories</h2>
           <p className="text-xs text-ink-muted mt-1">
-            Organize income sources and expense pillars. Archive categories to keep past records intact.
+            Organize income sources and expense categories for your monthly budgets and ledger.
           </p>
         </div>
 
@@ -293,7 +276,7 @@ export default function CategoriesPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingCat ? 'Rename category' : 'Create custom category'}
+        title={editingCat ? 'Edit category' : 'Create category'}
         subtitle={
           editingCat
             ? `Category type (${editingCat.type.toLowerCase()}) cannot be changed after creation.`
@@ -355,6 +338,24 @@ export default function CategoriesPage() {
             />
           </div>
 
+          <div>
+            <label
+              htmlFor="cat-description"
+              className="block text-xs font-medium text-ink-secondary mb-1.5"
+            >
+              Description (optional)
+            </label>
+            <textarea
+              id="cat-description"
+              rows={2}
+              maxLength={255}
+              value={catDescription}
+              onChange={(e) => setCatDescription(e.target.value)}
+              placeholder="Brief note on what belongs in this category"
+              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-accent-text focus:ring-2 focus:ring-accent/15 resize-none"
+            />
+          </div>
+
           <div className="flex justify-end gap-3 pt-2 border-t border-line">
             <button
               type="button"
@@ -368,24 +369,80 @@ export default function CategoriesPage() {
               disabled={saving}
               className="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg disabled:opacity-60"
             >
-              {saving ? 'Saving...' : editingCat ? 'Save name' : 'Create category'}
+              {saving ? 'Saving...' : editingCat ? 'Save changes' : 'Create category'}
             </button>
           </div>
         </form>
       </Modal>
 
-      <ConfirmDialog
+      <Modal
         open={Boolean(deletingCat)}
-        onClose={() => setDeletingCat(null)}
-        onConfirm={handleConfirmDelete}
+        onClose={closeDeleteModal}
         title="Delete category"
-        message={
-          deletingCat
-            ? `Delete "${deletingCat.name}"? This category has no transactions or budgets and will be permanently removed.`
-            : ''
-        }
-        loading={deletingLoading}
-      />
+        maxWidth="max-w-md"
+      >
+        {deletingCat && (
+          <form onSubmit={handleConfirmDelete} className="space-y-4">
+            <div className="flex items-start gap-3 rounded-lg bg-danger-bg border border-danger-line p-3.5">
+              <AlertTriangle className="w-4 h-4 text-danger-accent shrink-0 mt-0.5" />
+              <div className="text-sm text-ink-secondary space-y-1.5 leading-relaxed">
+                <p>
+                  You are about to permanently delete{' '}
+                  <span className="font-semibold text-ink">{deletingCat.name}</span>.
+                </p>
+                <p className="text-xs font-mono tabular-nums text-danger">
+                  Associated records: {deleteBudgetCount}{' '}
+                  {deleteBudgetCount === 1 ? 'budget' : 'budgets'} · {deleteTxCount}{' '}
+                  {deleteTxCount === 1 ? 'transaction' : 'transactions'}
+                </p>
+                {(deleteBudgetCount > 0 || deleteTxCount > 0) && (
+                  <p className="text-xs text-danger">
+                    All {deleteBudgetCount} {deleteBudgetCount === 1 ? 'budget' : 'budgets'} and{' '}
+                    {deleteTxCount} {deleteTxCount === 1 ? 'transaction' : 'transactions'} linked
+                    to this category will also be permanently deleted.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="delete-confirm-name"
+                className="block text-xs font-medium text-ink-secondary mb-1.5"
+              >
+                Write category name to delete
+              </label>
+              <input
+                id="delete-confirm-name"
+                type="text"
+                autoComplete="off"
+                value={deleteConfirmName}
+                onChange={(e) => setDeleteConfirmName(e.target.value)}
+                placeholder={deletingCat.name}
+                className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line-strong rounded-lg text-ink placeholder:text-ink-placeholder focus:outline-none focus:border-danger-accent focus:ring-2 focus:ring-danger-accent/15"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-line">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                disabled={deletingLoading}
+                className="px-4 py-2 text-sm font-medium text-ink-secondary bg-surface border border-line-strong rounded-lg hover:bg-subtle transition-colors whitespace-nowrap disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={deletingLoading || !canConfirmDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-danger-accent hover:bg-danger-hover rounded-lg transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deletingLoading ? 'Deleting...' : 'Delete category'}
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -307,7 +307,6 @@ export default function TransactionsPage() {
               {filteredCategories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
-                  {!cat.isActive ? ' (Archived)' : ''}
                 </option>
               ))}
             </select>

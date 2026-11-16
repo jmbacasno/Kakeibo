@@ -14,6 +14,13 @@ export class CategoryNameTooLongError extends DomainError {
   }
 }
 
+export class CategoryDescriptionTooLongError extends DomainError {
+  constructor() {
+    super("Category description cannot exceed 255 characters", "CATEGORY_DESCRIPTION_TOO_LONG");
+    this.name = "CategoryDescriptionTooLongError";
+  }
+}
+
 export class InvalidCategoryTypeError extends DomainError {
   constructor() {
     super("Category type must be INCOME or EXPENSE", "INVALID_CATEGORY_TYPE");

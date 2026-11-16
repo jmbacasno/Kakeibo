@@ -4,7 +4,6 @@ export interface ReflectionPlanSummary {
   id: number;
   month: number;
   year: number;
-  status: string;
 }
 
 export interface MonthlyReflectionEntity {
